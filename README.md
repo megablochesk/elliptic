@@ -1,2 +1,1 @@
-# eliptic
-MSc Project
+MSc Project - Volodymyr Shevchenko
