@@ -29,7 +29,7 @@ public static class Curve
         var c2 = BigInteger.Pow(c, 2) % P;
         var c3 = BigInteger.Multiply(c2, c) % P;
 
-        var x3 = (d * d - (c3 + 2 * p1.X * c2)) % P;
+        var x3 = (d * d - (c3 + (p1.X * c2 << 1))) % P;
         var y3 = (d * (p1.X * c2 - x3) - p1.Y * c3) % P;
         var z3 = p1.Z * c % P;
 
@@ -42,16 +42,17 @@ public static class Curve
     {
         if (p.IsAtInfinity) return JacobianPoint.AtInfinity;
 
-        var a = 4 * p.X * p.Y * p.Y % P;
-        var b = 8 * BigInteger.Pow(p.Y, 4) % P;
+        var a = (p.X << 2) * BigInteger.Pow(p.Y, 2) % P;
+        var b = (BigInteger.Pow(p.Y, 4) << 3) % P;
+
 
         var z2 = BigInteger.Pow(p.Z, 2) % P;
 
         var c = 3 * (p.X - z2) * (p.X + z2) % P;
-        var d = (-2 * a + c * c) % P;    // equal to x3
+        var d = ((-a << 1) + c * c) % P;    // equal to x3
 
         var y3 = (c * (a - d) - b) % P;
-        var z3 = 2 * p.Y * p.Z % P;
+        var z3 = ((p.Y * p.Z) << 1) % P;
 
         return new JacobianPoint(d, y3, z3);
     }
@@ -60,11 +61,11 @@ public static class Curve
     private static JacobianPoint MultiplyPointLeftToRight(BigInteger k, AffinePoint p)
     {
         if (k == BigInteger.Zero) return JacobianPoint.AtInfinity;
-        
+
         p.EnsureOnCurve();
 
         JacobianPoint result = JacobianPoint.AtInfinity;
-        
+
         for (int i = GetHighestBit(k); i >= 0; i--)
         {
             result = DoublePoint(result);
