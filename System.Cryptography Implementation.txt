@@ -1,0 +1,29 @@
+using System.Security.Cryptography;
+
+class Program
+{
+    static void Main()
+    {
+        // Generate ECDH keys for both parties using P-256 curve
+        using var alice = new ECDiffieHellmanCng(CngKey.Create(CngAlgorithm.ECDiffieHellmanP256));
+        using var bob = new ECDiffieHellmanCng(CngKey.Create(CngAlgorithm.ECDiffieHellmanP256));
+
+        alice.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
+        alice.HashAlgorithm = CngAlgorithm.Sha256;
+
+        bob.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
+        bob.HashAlgorithm = CngAlgorithm.Sha256;
+
+        var alicePublicKey = alice.PublicKey.ToByteArray();
+        var bobPublicKey = bob.PublicKey.ToByteArray();
+
+        var aliceSharedSecret = alice.DeriveKeyMaterial(CngKey.Import(bobPublicKey, CngKeyBlobFormat.EccPublicBlob));
+        var bobSharedSecret = bob.DeriveKeyMaterial(CngKey.Import(alicePublicKey, CngKeyBlobFormat.EccPublicBlob));
+
+        // Verify that both secrets are the same
+        Console.WriteLine("Alice's shared secret: " + BitConverter.ToString(aliceSharedSecret));
+        Console.WriteLine("Bob's shared secret: " + BitConverter.ToString(bobSharedSecret));
+
+        Console.WriteLine("Shared secrets are equal: " + aliceSharedSecret.SequenceEqual(bobSharedSecret));
+    }
+}

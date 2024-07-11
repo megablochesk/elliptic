@@ -1,0 +1,8 @@
+21.06.2024
+
+https://csrc.nist.gov/csrc/media/events/workshop-on-elliptic-curve-cryptography-standards/documents/papers/session6-adalier-mehmet.pdf
+Paper about implementation of P-256 with side-channel-attack resistance.
+
+08.06.2024
+
+Choosing eliptic curve - P256.
