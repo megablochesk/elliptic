@@ -1,12 +1,12 @@
 ﻿using System.Numerics;
 
-namespace ELO;
+namespace ELO.PointOperations;
 
 public static class MathUtilities
 {
     public static int GetHighestBit(BigInteger k) => (int)(k.GetBitLength() - 1);
 
-    public static bool IsBitSet(BigInteger k, int i) => (k & (BigInteger.One << i)) != 0;
+    public static bool IsBitSet(BigInteger k, int i) => (k & BigInteger.One << i) != 0;
 
     public static BigInteger ModInverse(BigInteger a, BigInteger m)
     {

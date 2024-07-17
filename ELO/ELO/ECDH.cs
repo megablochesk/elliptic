@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Security.Cryptography;
+using ELO.PointOperations;
 using ELO.Points;
 
 namespace ELO;
@@ -22,13 +23,13 @@ public static class ECDH
 
     public static AffinePoint GeneratePublicKey(BigInteger privateKey)
     {
-        return Curve.MultiplyPoint(privateKey, Curve.G)
+        return Operations.MultiplyPoint(privateKey, Curve.G)
                     .ToAffine();
     }
 
     public static AffinePoint DeriveSharedSecret(BigInteger privateKey, AffinePoint publicKey)
     {
-        return Curve.MultiplyPoint(privateKey, publicKey)
+        return Operations.MultiplyPoint(privateKey, publicKey)
                     .ToAffine();
     }
 

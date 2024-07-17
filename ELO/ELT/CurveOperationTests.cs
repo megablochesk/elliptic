@@ -1,4 +1,5 @@
 ﻿using ELO;
+using ELO.PointOperations;
 using ELO.Points;
 using System.Numerics;
 
@@ -17,7 +18,7 @@ public class CurveOperationTests
         var p2 = new AffinePoint(new BigInteger(13), BigInteger.Parse("53404144414778303508799263379260966483386805595332806637100379275867514529459"));
 
         // Act
-        JacobianPoint result = Curve.AddPoints(p1, p2);
+        JacobianPoint result = Operations.AddPoints(p1, p2);
 
         // Assert
         Assert.AreEqual(p2.ToJacobian(), result);
@@ -30,7 +31,7 @@ public class CurveOperationTests
         var point = Curve.G.ToJacobian();
 
         // Act
-        JacobianPoint result = Curve.DoublePoint(point);
+        JacobianPoint result = Operations.DoublePoint(point);
 
         Console.WriteLine($"{result.X} {result.Y} {result.Z}");
 
@@ -43,10 +44,10 @@ public class CurveOperationTests
     {
         // Arrange
         var g = Curve.G;
-        var g2 = Curve.DoublePoint(g.ToJacobian());
+        var g2 = Operations.DoublePoint(g.ToJacobian());
 
         // Act
-        AffinePoint result = Curve.AddPoints(g2, g).ToAffine();
+        AffinePoint result = Operations.AddPoints(g2, g).ToAffine();
 
 
         Console.WriteLine($"{result.X} {result.Y}");
