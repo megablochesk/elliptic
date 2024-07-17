@@ -5,7 +5,7 @@ using System.Numerics;
 namespace ELT;
 
 [TestFixture]
-public class CurveOperationTests
+public class CurveOperationTests()
 {
 
 
@@ -13,7 +13,7 @@ public class CurveOperationTests
     public void AddPoints_PointAtInfinityWithAnotherPoint_ShouldReturnOtherPoint()
     {
         // Arrange
-        var p1 = JacobianPoint.AtInfinity;
+        var p1 = new AffinePoint(BigInteger.Zero, BigInteger.Zero);
         var p2 = new AffinePoint(new BigInteger(13), BigInteger.Parse("53404144414778303508799263379260966483386805595332806637100379275867514529459"));
 
         // Act

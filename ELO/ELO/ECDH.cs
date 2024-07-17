@@ -1,10 +1,11 @@
 ﻿using System.Numerics;
 using System.Security.Cryptography;
+using ELO.PointOperations;
 using ELO.Points;
 
 namespace ELO;
 
-public static class ECDH
+public class ECDH(PointMultiplication context)
 {
     public static BigInteger GeneratePrivateKey()
     {
@@ -20,22 +21,21 @@ public static class ECDH
         return privateKey;
     }
 
-    public static AffinePoint GeneratePublicKey(BigInteger privateKey)
+    public Point GeneratePublicKey(BigInteger privateKey)
     {
-        return Curve.MultiplyPoint(privateKey, Curve.G)
-                    .ToAffine();
+        return context.MultiplyPoint<AffinePoint>(privateKey, Curve.G);
     }
 
-    public static AffinePoint DeriveSharedSecret(BigInteger privateKey, AffinePoint publicKey)
+    public AffinePoint DeriveSharedSecret(BigInteger privateKey, Point publicKey)
     {
-        return Curve.MultiplyPoint(privateKey, publicKey)
-                    .ToAffine();
+        return context.MultiplyPoint<AffinePoint>(privateKey, publicKey);
     }
 
     public static void VerifySharedSecrets(AffinePoint aliceSharedSecret, AffinePoint bobSharedSecret)
     {
         Console.WriteLine("Alice's shared secret: " + aliceSharedSecret);
         Console.WriteLine("Bob's shared secret: " + bobSharedSecret);
-        Console.WriteLine("Shared secrets are equal: " + (aliceSharedSecret.X == bobSharedSecret.X));
+        Console.WriteLine("Shared secrets are equal: " + ((aliceSharedSecret.X - bobSharedSecret.X ) % Curve.P == 0 
+                                                          && (aliceSharedSecret.Y - bobSharedSecret.Y) % Curve.P == 0));
     }
 }

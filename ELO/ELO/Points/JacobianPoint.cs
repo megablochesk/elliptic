@@ -9,6 +9,7 @@ public record JacobianPoint(BigInteger X, BigInteger Y, BigInteger Z) : Point
     public BigInteger Z { get; } = Z;
 
     public override bool IsAtInfinity => Z == 0;
+    public override JacobianPoint AtInfinity => new(1, 1, 0);
 
     public override bool IsPointOnCurve()
     {
@@ -19,19 +20,17 @@ public record JacobianPoint(BigInteger X, BigInteger Y, BigInteger Z) : Point
 
     public AffinePoint ToAffine()
     {
-        if (Z == BigInteger.Zero)
+        if (IsAtInfinity)
         {
             throw new InvalidOperationException("Cannot convert the point at infinity to affine coordinates.");
         }
 
-        BigInteger zSquared = Z * Z % Curve.P;
-        BigInteger zCubed = zSquared * Z % Curve.P;
+        BigInteger zSquared = BigInteger.Pow(Z, 2);
+        BigInteger zCubed = zSquared * Z;
 
         BigInteger xAffine = X * BigInteger.ModPow(zSquared, Curve.P - 2, Curve.P) % Curve.P;
         BigInteger yAffine = Y * BigInteger.ModPow(zCubed, Curve.P - 2, Curve.P) % Curve.P;
 
         return new AffinePoint(xAffine, yAffine);
     }
-
-    public static JacobianPoint AtInfinity => new(1, 1, 0);
 }
