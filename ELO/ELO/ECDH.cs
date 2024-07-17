@@ -36,6 +36,6 @@ public static class ECDH
     {
         Console.WriteLine("Alice's shared secret: " + aliceSharedSecret);
         Console.WriteLine("Bob's shared secret: " + bobSharedSecret);
-        Console.WriteLine("Shared secrets are equal: " + (aliceSharedSecret.X == bobSharedSecret.X));
+        Console.WriteLine("Shared secrets are equal: " + AffinePoint.ArePointsEqual(aliceSharedSecret, bobSharedSecret));
     }
 }

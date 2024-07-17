@@ -22,4 +22,8 @@ public record AffinePoint(BigInteger X, BigInteger Y) : Point
     }
 
     public static AffinePoint AtInfinity => new(0, 0);
+
+    public static bool ArePointsEqual(AffinePoint aliceSharedSecret, AffinePoint bobSharedSecret) =>
+        (aliceSharedSecret.X - bobSharedSecret.X) % Curve.P == 0
+        && (aliceSharedSecret.Y - bobSharedSecret.Y) % Curve.P == 0;
 }

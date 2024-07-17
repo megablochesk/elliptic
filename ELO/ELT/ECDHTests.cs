@@ -4,6 +4,7 @@ using System.Numerics;
 
 namespace ELT;
 
+[TestFixture]
 public class ECDHTests
 {
     [Test]
@@ -24,6 +25,6 @@ public class ECDHTests
         Assert.IsTrue(aliceSharedSecret.IsPointOnCurve());
         Assert.IsTrue(bobSharedSecret.IsPointOnCurve());
 
-        Assert.That(aliceSharedSecret.X == bobSharedSecret.X && aliceSharedSecret.Y == bobSharedSecret.Y);
+        Assert.That(AffinePoint.ArePointsEqual(aliceSharedSecret, bobSharedSecret));
     }
 }
