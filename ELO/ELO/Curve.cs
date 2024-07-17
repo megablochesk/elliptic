@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using ELO.Points;
+﻿using ELO.Points;
+using System.Numerics;
 
 namespace ELO;
 
@@ -14,12 +14,16 @@ public static class Curve
     public static readonly BigInteger Gy = BigInteger.Parse("4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5", System.Globalization.NumberStyles.HexNumber);
     public static readonly AffinePoint G = new(Gx, Gy);
 
-    public static JacobianPoint AddPoints(JacobianPoint p1, AffinePoint p2) => AddMixedPoints(p1, p2);
-    private static JacobianPoint AddMixedPoints(JacobianPoint p1, AffinePoint p2)
+    public static JacobianPoint AddPoints(JacobianPoint p1, AffinePoint p2)
     {
-        if (p1.IsAtInfinity) return p2.ToJacobianCoordinates();
+        if (p1.IsAtInfinity) return p2.ToJacobian();
         if (p2.IsAtInfinity) return p1;
 
+        return AddMixedPoints(p1, p2);
+    }
+
+    private static JacobianPoint AddMixedPoints(JacobianPoint p1, AffinePoint p2)
+    {
         var a = p2.X * BigInteger.Pow(p1.Z, 2) % P;
         var b = p2.Y * BigInteger.Pow(p1.Z, 3) % P;
 
@@ -37,11 +41,15 @@ public static class Curve
     }
 
 
-    public static JacobianPoint DoublePoint(JacobianPoint p) => DoubleJacobianPoint(p);
-    private static JacobianPoint DoubleJacobianPoint(JacobianPoint p)
+    public static JacobianPoint DoublePoint(JacobianPoint p)
     {
         if (p.IsAtInfinity) return JacobianPoint.AtInfinity;
 
+        return DoubleJacobianPoint(p);
+    }
+
+    private static JacobianPoint DoubleJacobianPoint(JacobianPoint p)
+    {
         var a = (p.X << 2) * BigInteger.Pow(p.Y, 2) % P;
         var b = (BigInteger.Pow(p.Y, 4) << 3) % P;
 
@@ -57,20 +65,24 @@ public static class Curve
         return new JacobianPoint(d, y3, z3);
     }
 
-    public static JacobianPoint MultiplyPoint(BigInteger k, AffinePoint p) => MultiplyPointLeftToRight(k, p);
-    private static JacobianPoint MultiplyPointLeftToRight(BigInteger k, AffinePoint p)
+    public static JacobianPoint MultiplyPoint(BigInteger k, AffinePoint p)
     {
         if (k == BigInteger.Zero) return JacobianPoint.AtInfinity;
 
         p.EnsureOnCurve();
 
+        return MultiplyPointLeftToRight(k, p);
+    }
+
+    private static JacobianPoint MultiplyPointLeftToRight(BigInteger k, AffinePoint p)
+    {
         JacobianPoint result = JacobianPoint.AtInfinity;
 
-        for (int i = GetHighestBit(k); i >= 0; i--)
+        for (int i = MathUtilities.GetHighestBit(k); i >= 0; i--)
         {
             result = DoublePoint(result);
 
-            if (IsBitSet(k, i))
+            if (MathUtilities.IsBitSet(k, i))
             {
                 result = AddPoints(result, p);
             }
@@ -78,8 +90,4 @@ public static class Curve
 
         return result;
     }
-
-    private static int GetHighestBit(BigInteger k) => (int)(k.GetBitLength() - 1);
-
-    private static bool IsBitSet(BigInteger k, int i) => (k & (BigInteger.One << i)) != 0;
 }

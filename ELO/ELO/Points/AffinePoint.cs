@@ -16,7 +16,7 @@ public record AffinePoint(BigInteger X, BigInteger Y) : Point
         return (BigInteger.Pow(Y, 2) - BigInteger.Pow(X, 3) - Curve.A * X - Curve.B) % Curve.P == 0;
     }
 
-    public JacobianPoint ToJacobianCoordinates()
+    public JacobianPoint ToJacobian()
     {
         return new JacobianPoint(X, Y, 1);
     }

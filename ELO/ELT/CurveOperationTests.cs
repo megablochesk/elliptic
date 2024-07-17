@@ -20,14 +20,14 @@ public class CurveOperationTests
         JacobianPoint result = Curve.AddPoints(p1, p2);
 
         // Assert
-        Assert.AreEqual(p2.ToJacobianCoordinates(), result);
+        Assert.AreEqual(p2.ToJacobian(), result);
     }
 
     [Test]
     public void AddTwoGPoints_ShouldReturn2G()
     {
         // Arrange
-        var point = Curve.G.ToJacobianCoordinates();
+        var point = Curve.G.ToJacobian();
 
         // Act
         JacobianPoint result = Curve.DoublePoint(point);
@@ -43,7 +43,7 @@ public class CurveOperationTests
     {
         // Arrange
         var g = Curve.G;
-        var g2 = Curve.DoublePoint(g.ToJacobianCoordinates());
+        var g2 = Curve.DoublePoint(g.ToJacobian());
 
         // Act
         AffinePoint result = Curve.AddPoints(g2, g).ToAffine();
