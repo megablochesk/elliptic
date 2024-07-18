@@ -33,8 +33,21 @@ public static class ECDH
                     .ToAffine();
     }
 
+    public static AffinePoint GeneratePublicKeyA(BigInteger privateKey)
+    {
+        return Operations.MultiplyAffinePointLeftToRight(privateKey, Curve.G);
+    }
+
+    public static AffinePoint DeriveSharedSecretA(BigInteger privateKey, AffinePoint publicKey)
+    {
+        return Operations.MultiplyAffinePointLeftToRight(privateKey, publicKey);
+    }
+
     public static void VerifySharedSecrets(AffinePoint aliceSharedSecret, AffinePoint bobSharedSecret)
     {
+        aliceSharedSecret.EnsureOnCurve();
+        bobSharedSecret.EnsureOnCurve();
+
         Console.WriteLine("Alice's shared secret: " + aliceSharedSecret);
         Console.WriteLine("Bob's shared secret: " + bobSharedSecret);
         Console.WriteLine("Shared secrets are equal: " + AffinePoint.ArePointsEqual(aliceSharedSecret, bobSharedSecret));

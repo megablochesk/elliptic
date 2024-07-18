@@ -13,7 +13,7 @@ public record AffinePoint(BigInteger X, BigInteger Y) : Point
     {
         if (IsAtInfinity) return false;
 
-        return (BigInteger.Pow(Y, 2) - BigInteger.Pow(X, 3) - Curve.A * X - Curve.B) % Curve.P == 0;
+        return (BigInteger.Pow(X, 3) + Curve.A * X + Curve.B - BigInteger.Pow(Y, 2)) % Curve.P == 0;
     }
 
     public JacobianPoint ToJacobian()
@@ -23,7 +23,7 @@ public record AffinePoint(BigInteger X, BigInteger Y) : Point
 
     public static AffinePoint AtInfinity => new(0, 0);
 
-    public static bool ArePointsEqual(AffinePoint aliceSharedSecret, AffinePoint bobSharedSecret) =>
-        (aliceSharedSecret.X - bobSharedSecret.X) % Curve.P == 0
-        && (aliceSharedSecret.Y - bobSharedSecret.Y) % Curve.P == 0;
+    public static bool ArePointsEqual(AffinePoint first, AffinePoint second) =>
+        (first.X - second.X) % Curve.P == 0
+        && (first.Y - second.Y) % Curve.P == 0;
 }
