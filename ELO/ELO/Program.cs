@@ -1,18 +1,36 @@
-﻿using System.Numerics;
-using ELO;
+﻿using ELO.ECDH;
 using ELO.Points;
 
+namespace ELO;
 
-BigInteger alicePrivateKey = ECDH.GeneratePrivateKey();
-BigInteger bobPrivateKey = ECDH.GeneratePrivateKey();
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var ecdh = ECDHFactory.CreateECDH(PointType.Affine);
 
-Console.WriteLine(alicePrivateKey);
-Console.WriteLine(bobPrivateKey);
+        BigInteger alicePrivateKey = ecdh.GeneratePrivateKey();
+        BigInteger bobPrivateKey = ecdh.GeneratePrivateKey();
 
-AffinePoint alicePublicKey = ECDH.GeneratePublicKeyA(alicePrivateKey);
-AffinePoint bobPublicKey = ECDH.GeneratePublicKeyA(bobPrivateKey);
+        Console.WriteLine(alicePrivateKey);
+        Console.WriteLine(bobPrivateKey);
 
-AffinePoint aliceSharedSecret = ECDH.DeriveSharedSecretA(alicePrivateKey, bobPublicKey);
-AffinePoint bobSharedSecret = ECDH.DeriveSharedSecretA(bobPrivateKey, alicePublicKey);
+        var alicePublicKey = ecdh.GeneratePublicKey(alicePrivateKey);
+        var bobPublicKey = ecdh.GeneratePublicKey(bobPrivateKey);
 
-ECDH.VerifySharedSecrets(aliceSharedSecret, bobSharedSecret);
+        var aliceSharedSecret = ecdh.DeriveSharedSecret(alicePrivateKey, bobPublicKey);
+        var bobSharedSecret = ecdh.DeriveSharedSecret(bobPrivateKey, alicePublicKey);
+
+        VerifySharedSecrets(aliceSharedSecret, bobSharedSecret);
+    }
+
+    public static void VerifySharedSecrets(AffinePoint aliceSharedSecret, AffinePoint bobSharedSecret)
+    {
+        aliceSharedSecret.EnsureOnCurve();
+        bobSharedSecret.EnsureOnCurve();
+
+        Console.WriteLine("Alice's shared secret: " + aliceSharedSecret);
+        Console.WriteLine("Bob's shared secret: " + bobSharedSecret);
+        Console.WriteLine("Shared secrets are equal: " + AffinePoint.ArePointsEqual(aliceSharedSecret, bobSharedSecret));
+    }
+}

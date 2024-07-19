@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace ELO.Points;
+﻿namespace ELO.Points;
 
 public record AffinePoint(BigInteger X, BigInteger Y) : Point
 {

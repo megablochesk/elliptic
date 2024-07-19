@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace ELO.PointOperations;
+﻿namespace ELO.PointOperations;
 
 public static class MathUtilities
 {
@@ -8,30 +6,14 @@ public static class MathUtilities
 
     public static bool IsBitSet(BigInteger k, int i) => (k & BigInteger.One << i) != 0;
 
-    public static BigInteger ModInverse(BigInteger a, BigInteger m)
+    public static BigInteger ModInverse(BigInteger a, BigInteger p)
     {
-        BigInteger m0 = m;
-        BigInteger y = 0, x = 1;
-
-        if (m == 1)
+        if (p == 1)
             return 0;
 
-        while (a > 1)
-        {
-            BigInteger q = a / m;
-            BigInteger t = m;
+        if (BigInteger.GreatestCommonDivisor(a, p) != 1)
+            throw new InvalidOperationException("Inverse does not exist - a and p must be coprime.");
 
-            m = a % m;
-            a = t;
-            t = y;
-
-            y = x - q * y;
-            x = t;
-        }
-
-        if (x < 0)
-            x += m0;
-
-        return x;
+        return BigInteger.ModPow(a, p - 2, p);
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace ELO.Points;
+﻿namespace ELO.Points;
 
 public record JacobianPoint(BigInteger X, BigInteger Y, BigInteger Z) : Point
 {
