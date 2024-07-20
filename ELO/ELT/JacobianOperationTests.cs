@@ -6,9 +6,9 @@ using System.Numerics;
 namespace ELT;
 
 [TestFixture]
-public class CurveOperationTests
+public class JacobianOperationTests
 {
-
+    readonly JacobianOperations _jacobianOperations = new();
 
     [Test]
     public void AddPoints_PointAtInfinityWithAnotherPoint_ShouldReturnOtherPoint()
@@ -18,7 +18,7 @@ public class CurveOperationTests
         var p2 = new AffinePoint(new BigInteger(13), BigInteger.Parse("53404144414778303508799263379260966483386805595332806637100379275867514529459"));
 
         // Act
-        JacobianPoint result = Operations.AddPoints(p1, p2);
+        JacobianPoint result = _jacobianOperations.AddPoints(p1, p2);
 
         // Assert
         Assert.AreEqual(p2.ToJacobian(), result);
@@ -31,7 +31,7 @@ public class CurveOperationTests
         var point = Curve.G.ToJacobian();
 
         // Act
-        JacobianPoint result = Operations.DoublePoint(point);
+        JacobianPoint result = _jacobianOperations.DoublePoint(point);
 
         Console.WriteLine($"{result.X} {result.Y} {result.Z}");
 
@@ -44,10 +44,10 @@ public class CurveOperationTests
     {
         // Arrange
         var g = Curve.G;
-        var g2 = Operations.DoublePoint(g.ToJacobian());
+        var g2 = _jacobianOperations.DoublePoint(g.ToJacobian());
 
         // Act
-        AffinePoint result = Operations.AddPoints(g2, g).ToAffine();
+        AffinePoint result = _jacobianOperations.AddPoints(g2, g).ToAffine();
 
 
         Console.WriteLine($"{result.X} {result.Y}");
