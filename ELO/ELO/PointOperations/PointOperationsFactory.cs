@@ -4,13 +4,13 @@ namespace ELO.PointOperations;
 
 public static class PointOperationFactory
 {
-    public static IPointOperations<JacobianPoint> GetJacobianOperations()
+    public static IPointOperations<JacobianPoint> GetJacobianOperations(AlgorithmType type)
     {
-        return new JacobianOperations();
+        return new JacobianOperations(type);
     }
 
-    public static IPointOperations<AffinePoint> GetAffineOperations()
+    public static IPointOperations<AffinePoint> GetAffineOperations(AlgorithmType type)
     {
-        return new AffineOperations();
+        return new AffineOperations(type);
     }
 }

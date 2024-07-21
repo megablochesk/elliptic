@@ -2,7 +2,7 @@
 
 namespace ELO.PointOperations;
 
-public class AffineOperations : IPointOperations<AffinePoint>
+public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<AffinePoint>
 {
     public AffinePoint AddPoints(AffinePoint p1, AffinePoint p2)
     {
@@ -57,10 +57,17 @@ public class AffineOperations : IPointOperations<AffinePoint>
 
         p.EnsureOnCurve();
 
-        return MultiplyAffinePointLeftToRight(k, p);
+        var result = algorithmType switch
+        {
+            AlgorithmType.AffineLeftToRight => MultiplyPointLeftToRight(k, p),
+            AlgorithmType.AffineMontgomeryLadder => MultiplyPointMontgomeryLadder(k, p),
+            _ => throw new InvalidOperationException("Unsupported algorithm type.")
+        };
+
+        return result;
     }
 
-    private AffinePoint MultiplyAffinePointLeftToRight(BigInteger k, AffinePoint p)
+    private AffinePoint MultiplyPointLeftToRight(BigInteger k, AffinePoint p)
     {
         AffinePoint result = AffinePoint.AtInfinity;
 
@@ -75,5 +82,27 @@ public class AffineOperations : IPointOperations<AffinePoint>
         }
 
         return result;
+    }
+
+    private AffinePoint MultiplyPointMontgomeryLadder(BigInteger k, AffinePoint p)
+    {
+        var r0 = AffinePoint.AtInfinity;
+        var r1 = p;
+
+        for (int i = MathUtilities.GetHighestBit(k); i >= 0; i--)
+        {
+            if (MathUtilities.IsBitSet(k, i))
+            {
+                r0 = AddPoints(r0, r1);
+                r1 = DoublePoint(r1);
+            }
+            else
+            {
+                r1 = AddPoints(r0, r1);
+                r0 = DoublePoint(r0);
+            }
+        }
+
+        return r0;
     }
 }

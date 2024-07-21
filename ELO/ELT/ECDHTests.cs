@@ -9,15 +9,17 @@ namespace ELT;
 public class ECDHTests
 {
     [Test]
-    [TestCase(PointType.Affine)]
-    [TestCase(PointType.Jacobian)]
-    public void TestEDHD(PointType pointType)
+    [TestCase(AlgorithmType.AffineLeftToRight)]
+    [TestCase(AlgorithmType.AffineMontgomeryLadder)]
+    [TestCase(AlgorithmType.JacobianLeftToRight)]
+    [TestCase(AlgorithmType.JacobianMontgomeryLadder)]
+    public void TestEDHD(AlgorithmType algorithmType)
     {
         BigInteger alicePrivateKey = BigInteger.Parse("93083067474008655841404248258697333634583388142843875066892035839243010313215");
         BigInteger bobPrivateKey = BigInteger.Parse("26502975831688994212300543431059499816538530198313673272593496574021759095939");
 
 
-        var ecdh = ECDHFactory.CreateECDH(pointType);
+        var ecdh = ECDHFactory.CreateECDH(algorithmType);
 
 
         var alicePublicKey = ecdh.GeneratePublicKey(alicePrivateKey);

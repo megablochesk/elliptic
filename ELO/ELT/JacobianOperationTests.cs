@@ -8,7 +8,7 @@ namespace ELT;
 [TestFixture]
 public class JacobianOperationTests
 {
-    readonly JacobianOperations _jacobianOperations = new();
+    readonly JacobianOperations _jacobianOperations = new(AlgorithmType.JacobianLeftToRight);
 
     [Test]
     public void AddPoints_PointAtInfinityWithAnotherPoint_ShouldReturnOtherPoint()

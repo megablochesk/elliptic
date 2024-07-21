@@ -5,16 +5,17 @@ namespace ELO.ECDH;
 
 public static class ECDHFactory
 {
-    public static IECDH CreateECDH(PointType pointType)
+    public static IECDH CreateECDH(AlgorithmType algorithmType)
     {
-        switch (pointType)
+        return algorithmType switch
         {
-            case PointType.Affine:
-                return new ECDH<AffinePoint>(PointOperationFactory.GetAffineOperations());
-            case PointType.Jacobian:
-                return new ECDH<JacobianPoint>(PointOperationFactory.GetJacobianOperations());
-            default:
-                throw new ArgumentException("Unsupported point type");
-        }
+            AlgorithmType.AffineLeftToRight =>        new ECDH<AffinePoint>(PointOperationFactory.GetAffineOperations(algorithmType)),
+            AlgorithmType.AffineMontgomeryLadder =>   new ECDH<AffinePoint>(PointOperationFactory.GetAffineOperations(algorithmType)),
+
+            AlgorithmType.JacobianLeftToRight =>      new ECDH<JacobianPoint>(PointOperationFactory.GetJacobianOperations(algorithmType)),
+            AlgorithmType.JacobianMontgomeryLadder => new ECDH<JacobianPoint>(PointOperationFactory.GetJacobianOperations(algorithmType)),
+
+            _ => throw new ArgumentException("Unsupported point type")
+        };
     }
 }

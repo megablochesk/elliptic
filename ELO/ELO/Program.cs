@@ -7,7 +7,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var ecdh = ECDHFactory.CreateECDH(PointType.Affine);
+        var ecdh = ECDHFactory.CreateECDH(AlgorithmType.AffineLeftToRight);
 
         BigInteger alicePrivateKey = ecdh.GeneratePrivateKey();
         BigInteger bobPrivateKey = ecdh.GeneratePrivateKey();
