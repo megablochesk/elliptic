@@ -1,5 +1,4 @@
 ﻿using ELO.ECDH;
-using ELO.Points;
 
 namespace ELO;
 

@@ -1,4 +1,5 @@
-﻿using ELO.Points;
+﻿using ELO.ECDH;
+using ELO.Points;
 
 namespace ELO.PointOperations;
 
@@ -105,6 +106,17 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         return new JacobianPoint(d, y3, z3);
     }
 
+    private static JacobianPoint PointDoubleRepeat(JacobianPoint point, int times)
+    {
+        JacobianPoint result = point;
+
+        for (int i = 0; i < times; i++)
+        {
+            result = DoubleJacobianPoint(result);
+        }
+        return result;
+    }
+
     public AffinePoint MultiplyPoint(BigInteger k, AffinePoint p)
     {
         if (k == BigInteger.Zero) return AffinePoint.AtInfinity;
@@ -113,8 +125,10 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
 
         var result = algorithmType switch
         {
-            AlgorithmType.JacobianLeftToRight => MultiplyPointLeftToRight(k, p),
+            AlgorithmType.JacobianLeftToRight      => MultiplyPointLeftToRight(k, p),
             AlgorithmType.JacobianMontgomeryLadder => MultiplyPointMontgomeryLadder(k, p),
+            AlgorithmType.JacobianWithNAF          => MultiplyPointWithNAF(k, p),
+            AlgorithmType.JacobianWindowedMethod   => MultiplyPointWindowedMethod(k, p),
             _ => throw new InvalidOperationException("Unsupported algorithm type.")
         };
 
@@ -158,5 +172,68 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         }
 
         return r0;
+    }
+
+    private JacobianPoint MultiplyPointWithNAF(BigInteger k, AffinePoint p)
+    {
+        var naf = MathUtilities.ComputeNAF(k);
+
+        var result = JacobianPoint.AtInfinity;
+
+        for (int i = naf.Count - 1; i >= 0; i--)
+        {
+            result = DoublePoint(result);
+
+            if (naf[i] == -1) result = AddPoints(result, p.Negated);
+            else if (naf[i] == 1) result = AddPoints(result, p);
+        }
+
+        return result;
+    }
+
+    public JacobianPoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
+    {
+        var precomputedPoints = PrecomputePoints(p);
+
+        string kBinary = k.ToBinaryString();
+        int m = kBinary.Length / Curve.WindowSize;
+
+        var Q = JacobianPoint.AtInfinity;
+
+        for (int i = m; i >= 0; i--)
+        {
+            Q = PointDoubleRepeat(Q, Curve.WindowSize);
+
+            int startIdx = i * Curve.WindowSize;
+            int endIdx = Math.Min(startIdx + Curve.WindowSize, kBinary.Length);
+
+            if (startIdx < kBinary.Length)
+            {
+                string windowBinary = kBinary.Substring(startIdx, endIdx - startIdx);
+                int d = Convert.ToInt32(windowBinary, 2);
+
+                if (d > 0)
+                {
+                    Q = AddPoints(Q, precomputedPoints[d]);
+                }
+            }
+        }
+
+        return Q;
+    }
+
+    private static JacobianPoint[] PrecomputePoints(AffinePoint p)
+    {
+        int numPrecomputedPoints = 1 << Curve.WindowSize;
+
+        JacobianPoint[] precomputedPoints = new JacobianPoint[numPrecomputedPoints];
+
+        precomputedPoints[0] = JacobianPoint.AtInfinity;
+        for (int i = 1; i < numPrecomputedPoints; i++)
+        {
+            precomputedPoints[i] = AddMixedPoints(precomputedPoints[i - 1], p);
+        }
+
+        return precomputedPoints;
     }
 }

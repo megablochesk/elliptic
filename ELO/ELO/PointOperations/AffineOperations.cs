@@ -1,4 +1,6 @@
-﻿using ELO.Points;
+﻿using ELO.ECDH;
+using ELO.Points;
+using System.Linq;
 
 namespace ELO.PointOperations;
 
@@ -51,6 +53,17 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
         return new AffinePoint(x3, y3);
     }
 
+    private static AffinePoint PointDoubleRepeat(AffinePoint point, int times)
+    {
+        AffinePoint result = point;
+
+        for (int i = 0; i < times; i++)
+        {
+            result = DoubleAffinePoint(result);
+        }
+        return result;
+    }
+
     public AffinePoint MultiplyPoint(BigInteger k, AffinePoint p)
     {
         if (k == BigInteger.Zero) return AffinePoint.AtInfinity;
@@ -61,6 +74,8 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
         {
             AlgorithmType.AffineLeftToRight => MultiplyPointLeftToRight(k, p),
             AlgorithmType.AffineMontgomeryLadder => MultiplyPointMontgomeryLadder(k, p),
+            AlgorithmType.AffineWithNAF => MultiplyPointWithNAF(k, p),
+            AlgorithmType.AffineWindowedMethod => MultiplyPointWindowedMethod(k, p),
             _ => throw new InvalidOperationException("Unsupported algorithm type.")
         };
 
@@ -104,5 +119,122 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
         }
 
         return r0;
+    }
+
+    private AffinePoint MultiplyPointWithNAF(BigInteger k, AffinePoint p)
+    {
+        var naf = MathUtilities.ComputeNAF(k);
+
+        var result = AffinePoint.AtInfinity;
+
+        for (int i = naf.Count - 1; i >= 0; i--)
+        {
+            result = DoublePoint(result);
+
+            if (naf[i] == -1) result = AddPoints(result, p.Negated);
+            else if (naf[i] == 1) result = AddPoints(result, p);
+        }
+
+        return result;
+    }
+
+    private AffinePoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
+    {
+        var precomputedPoints = PrecomputePoints(p);
+        var naf = MathUtilities.GenerateWidthWNAF(k);
+
+        int c = MathUtilities.FindLargestNonZeroDigit(naf);
+
+        AffinePoint Q = precomputedPoints[Math.Abs(naf[c])];
+        if (naf[c] < 0)
+        {
+            Q = Q.Negated;
+        }
+
+        for (int i = c - 1; i >= 0; i--)
+        {
+            Q = DoublePoint(Q);
+            if (naf[i] != 0)
+            {
+                AffinePoint T = precomputedPoints[Math.Abs(naf[i])];
+                if (naf[i] < 0)
+                {
+                    T = T.Negated;
+                }
+                Q = AddPoints(Q, T);
+            }
+        }
+
+        return Q;
+    }
+    
+    private AffinePoint MultiplyPointFixedWindowedMethod(BigInteger k, AffinePoint p)
+    {
+        var precomputedPoints = PrecomputePoints(p);
+
+        var naf = MathUtilities.ComputeNAF(k);
+        var segments = SplitNAFIntoSegments(naf);
+
+        int I = ((1 << (Curve.WindowSize + 1)) - 2) / 3;
+
+        var A = AffinePoint.AtInfinity;
+        var B = AffinePoint.AtInfinity;
+
+        for (int j = I; j >= 1; j--)
+        {
+            foreach (var segment in segments)
+                foreach (var ki in segment)
+                {
+                    if (ki == j)
+                    {
+                        B = B == AffinePoint.AtInfinity ? precomputedPoints[j] : AddAffinePoints(B, precomputedPoints[j]);
+                    }
+                    else if (ki == -j)
+                    {
+                        B = B == AffinePoint.AtInfinity ? precomputedPoints[j].Negated : AddAffinePoints(B, precomputedPoints[j].Negated);
+                    }
+                }
+
+            A = AddAffinePoints(A, B);
+        }
+
+        return A;
+    }
+
+    public static List<int[]> SplitNAFIntoSegments(List<int> naf)
+    {
+        var l = naf.Count;
+        double d = Math.Ceiling((double)l / Curve.WindowSize);
+
+        List<int[]> segments = [];
+        for (int i = 0; i < d; i++)
+        {
+            var segmentLength = Math.Min(Curve.WindowSize, naf.Count - i * Curve.WindowSize);
+
+            var segment = new int[segmentLength];
+            naf.CopyTo(i * Curve.WindowSize, segment, 0, segmentLength);
+
+            segments.Add(segment);
+
+            Console.WriteLine(segment);
+        }
+
+        return segments;
+    }
+
+    private static AffinePoint[] PrecomputePoints(AffinePoint p)
+    {
+        int neededPointNumber = 1 << Curve.WindowSize;
+
+        AffinePoint[] points = new AffinePoint[neededPointNumber];
+
+        points[0] = AffinePoint.AtInfinity;
+
+        for (int i = 1; i < neededPointNumber; i++)
+        {
+            points[i] = AddAffinePoints(points[i - 1], p);
+        }
+
+        return points;
     }
 }

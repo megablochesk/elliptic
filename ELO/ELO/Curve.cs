@@ -12,4 +12,6 @@ public static class Curve
     public static readonly BigInteger Gx = BigInteger.Parse("6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296", System.Globalization.NumberStyles.HexNumber);
     public static readonly BigInteger Gy = BigInteger.Parse("4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5", System.Globalization.NumberStyles.HexNumber);
     public static readonly AffinePoint G = new(Gx, Gy);
+
+    public static readonly int WindowSize = 4;
 }

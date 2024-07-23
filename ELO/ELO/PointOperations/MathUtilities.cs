@@ -1,4 +1,6 @@
-﻿namespace ELO.PointOperations;
+﻿using System.Text;
+
+namespace ELO.PointOperations;
 
 public static class MathUtilities
 {
@@ -9,6 +11,64 @@ public static class MathUtilities
     public static int GetHighestBit(BigInteger k) => (int)(k.GetBitLength() - 1);
 
     public static bool IsBitSet(BigInteger k, int i) => (k & BigInteger.One << i) != 0;
+
+    public static int FindLargestNonZeroDigit(List<int> dw)
+    {
+        int c = dw.Count - 1;
+        while (c >= 0 && dw[c] == 0)
+        {
+            c--;
+        }
+        return c;
+    }
+
+    public static List<int> ComputeNAF(BigInteger k)
+    {
+        List<int> naf = [];
+
+        while (k > 0)
+        {
+            if (k % 2 == 0)
+            {
+                naf.Add(0);
+            }
+            else
+            {
+                int z = (int)(2 - (k % 4));
+                naf.Add(z);
+                k -= z;
+            }
+            k >>= 1;
+        }
+
+        return naf;
+    }
+
+    public static List<int> GenerateWidthWNAF(BigInteger k)
+    {
+        var n = k.GetBitLength();
+        BigInteger twoPowerW = 1 << Curve.WindowSize;
+
+        var dw = new List<int>(new int[n + 1]);
+
+        for (int i = 0; i <= n; i++)
+        {
+            if ((k & 1) == 1)
+            {
+                dw[i] = (int)(k % twoPowerW);
+
+                k -= dw[i];
+            }
+            else
+            {
+                dw[i] = 0;
+            }
+
+            k >>= 1;
+        }
+
+        return dw;
+    }
 
     public static BigInteger ModInverse(BigInteger a, BigInteger p)
     {
@@ -104,5 +164,32 @@ public static class MathUtilities
         while (r >= P256) r -= P256;
 
         return r;
+    }
+}
+
+public static class BigIntegerExtensions
+{
+    public static string ToBinaryString(this BigInteger bigint)
+    {
+        var bytes = bigint.ToByteArray();
+        var idx = bytes.Length - 1;
+            
+        var base2 = new StringBuilder(bytes.Length * 8);
+
+        var binary = Convert.ToString(bytes[idx], 2);
+
+        if (binary[0] != '0' && bigint.Sign == 1)
+        {
+            base2.Append('0');
+        }
+
+        base2.Append(binary);
+
+        for (idx--; idx >= 0; idx--)
+        {
+            base2.Append(Convert.ToString(bytes[idx], 2).PadLeft(8, '0'));
+        }
+
+        return base2.ToString();
     }
 }

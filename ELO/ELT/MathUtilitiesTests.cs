@@ -18,4 +18,28 @@ public class MathUtilitiesTests
         Assert.AreEqual(expected, result);
         Assert.AreEqual(expectedStandard, result);
     }
+
+    [Test]
+    public void NAFTest()
+    {
+        BigInteger input = 27;
+
+        var result = MathUtilities.ComputeNAF(input);
+
+        var expected = new List<int> { -1, 0, -1, 0, 0, 1 };
+
+        Assert .AreEqual(expected, result);
+    }
+
+    [Test]
+    public void TestGenerateWidthWNAF()
+    {
+        BigInteger d1 = 75;
+
+        var expected = new List<int> { 11, 0, 0, 0, 0, 0, 1, 0 };
+
+        var result = MathUtilities.GenerateWidthWNAF(d1);
+
+        Assert.AreEqual(expected, result);
+    }
 }

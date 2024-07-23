@@ -17,10 +17,7 @@ public record JacobianPoint(BigInteger X, BigInteger Y, BigInteger Z) : Point
 
     public AffinePoint ToAffine()
     {
-        if (Z == BigInteger.Zero)
-        {
-            throw new InvalidOperationException("Cannot convert the point at infinity to affine coordinates.");
-        }
+        if (IsAtInfinity) return AffinePoint.AtInfinity;
 
         BigInteger zSquared = Z * Z % Curve.P;
         BigInteger zCubed = zSquared * Z % Curve.P;
