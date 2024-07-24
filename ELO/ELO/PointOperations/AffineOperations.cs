@@ -140,100 +140,38 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
 
     private AffinePoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
     {
-        var precomputedPoints = PrecomputePoints(p);
+        var savedPoints = PrecomputePoints(p);
         var naf = MathUtilities.GenerateWidthWNAF(k);
 
-        int c = MathUtilities.FindLargestNonZeroDigit(naf);
+        var result = AffinePoint.AtInfinity;
 
-        AffinePoint Q = precomputedPoints[Math.Abs(naf[c])];
-        if (naf[c] < 0)
+        foreach (var i in naf)
         {
-            Q = Q.Negated;
-        }
+            result = DoublePoint(result);
 
-        for (int i = c - 1; i >= 0; i--)
-        {
-            Q = DoublePoint(Q);
-            if (naf[i] != 0)
+            if (i != 0)
             {
-                AffinePoint T = precomputedPoints[Math.Abs(naf[i])];
-                if (naf[i] < 0)
-                {
-                    T = T.Negated;
-                }
-                Q = AddPoints(Q, T);
+                result = AddPoints(result, savedPoints[i]);
             }
         }
 
-        return Q;
-    }
-    
-    private AffinePoint MultiplyPointFixedWindowedMethod(BigInteger k, AffinePoint p)
-    {
-        var precomputedPoints = PrecomputePoints(p);
-
-        var naf = MathUtilities.ComputeNAF(k);
-        var segments = SplitNAFIntoSegments(naf);
-
-        int I = ((1 << (Curve.WindowSize + 1)) - 2) / 3;
-
-        var A = AffinePoint.AtInfinity;
-        var B = AffinePoint.AtInfinity;
-
-        for (int j = I; j >= 1; j--)
-        {
-            foreach (var segment in segments)
-                foreach (var ki in segment)
-                {
-                    if (ki == j)
-                    {
-                        B = B == AffinePoint.AtInfinity ? precomputedPoints[j] : AddAffinePoints(B, precomputedPoints[j]);
-                    }
-                    else if (ki == -j)
-                    {
-                        B = B == AffinePoint.AtInfinity ? precomputedPoints[j].Negated : AddAffinePoints(B, precomputedPoints[j].Negated);
-                    }
-                }
-
-            A = AddAffinePoints(A, B);
-        }
-
-        return A;
+        return result;
     }
 
-    public static List<int[]> SplitNAFIntoSegments(List<int> naf)
+    private static Dictionary<int, AffinePoint> PrecomputePoints(AffinePoint p)
     {
-        var l = naf.Count;
-        double d = Math.Ceiling((double)l / Curve.WindowSize);
+        var p2 = DoubleAffinePoint(p);
 
-        List<int[]> segments = [];
-        for (int i = 0; i < d; i++)
-        {
-            var segmentLength = Math.Min(Curve.WindowSize, naf.Count - i * Curve.WindowSize);
+        Dictionary<int, AffinePoint> points = new() { [1] = p };
 
-            var segment = new int[segmentLength];
-            naf.CopyTo(i * Curve.WindowSize, segment, 0, segmentLength);
+        points[3] = AddAffinePoints(points[1], p2);
+        points[5] = AddAffinePoints(points[3], p2);
+        points[7] = AddAffinePoints(points[5], p2);
 
-            segments.Add(segment);
-
-            Console.WriteLine(segment);
-        }
-
-        return segments;
-    }
-
-    private static AffinePoint[] PrecomputePoints(AffinePoint p)
-    {
-        int neededPointNumber = 1 << Curve.WindowSize;
-
-        AffinePoint[] points = new AffinePoint[neededPointNumber];
-
-        points[0] = AffinePoint.AtInfinity;
-
-        for (int i = 1; i < neededPointNumber; i++)
-        {
-            points[i] = AddAffinePoints(points[i - 1], p);
-        }
+        points[-1] = points[1].Negated;
+        points[-3] = points[3].Negated;
+        points[-5] = points[5].Negated;
+        points[-7] = points[7].Negated;
 
         return points;
     }

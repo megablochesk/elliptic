@@ -8,9 +8,13 @@ public static class MathUtilities
     private static readonly BigInteger P256X2 = P256 * 2;
     private static readonly int[] Index = [0, 32, 64, 96, 128, 160, 192, 224];
 
+    private static readonly int twoToW = 1 << Curve.WindowSize;
+
     public static int GetHighestBit(BigInteger k) => (int)(k.GetBitLength() - 1);
 
     public static bool IsBitSet(BigInteger k, int i) => (k & BigInteger.One << i) != 0;
+
+    public static bool IsOdd(BigInteger number) => (number & 1) == 1;
 
     public static int FindLargestNonZeroDigit(List<int> dw)
     {
@@ -28,16 +32,17 @@ public static class MathUtilities
 
         while (k > 0)
         {
-            if (k % 2 == 0)
-            {
-                naf.Add(0);
-            }
-            else
+            if (IsOdd(k))
             {
                 int z = (int)(2 - (k % 4));
                 naf.Add(z);
                 k -= z;
             }
+            else
+            {
+                naf.Add(0);
+            }
+
             k >>= 1;
         }
 
@@ -46,28 +51,32 @@ public static class MathUtilities
 
     public static List<int> GenerateWidthWNAF(BigInteger k)
     {
-        var n = k.GetBitLength();
-        BigInteger twoPowerW = 1 << Curve.WindowSize;
+        var result = new List<int>();
 
-        var dw = new List<int>(new int[n + 1]);
-
-        for (int i = 0; i <= n; i++)
+        while (k > 0)
         {
-            if ((k & 1) == 1)
+            if (IsOdd(k))
             {
-                dw[i] = (int)(k % twoPowerW);
+                var ki = SignedModulo(k);
+                result.Insert(0,ki);
 
-                k -= dw[i];
+                k -= ki;
             }
-            else
-            {
-                dw[i] = 0;
-            }
+            else result.Insert(0, 0);
 
             k >>= 1;
         }
 
-        return dw;
+        return result;
+    }
+
+    public static int SignedModulo(BigInteger k)
+    {
+        var twoToWMinusOne = twoToW >> 1;  // 2^(w-1)
+
+        var modResult = (int)(k % twoToW);  // d mod 2^w
+
+        return modResult >= twoToWMinusOne ? modResult - twoToW : modResult;
     }
 
     public static BigInteger ModInverse(BigInteger a, BigInteger p)

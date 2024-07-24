@@ -191,49 +191,41 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         return result;
     }
 
-    public JacobianPoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
+    private JacobianPoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
     {
-        var precomputedPoints = PrecomputePoints(p);
+        var savedPoints = PrecomputePoints(p);
+        var naf = MathUtilities.GenerateWidthWNAF(k);
 
-        string kBinary = k.ToBinaryString();
-        int m = kBinary.Length / Curve.WindowSize;
+        var result = JacobianPoint.AtInfinity;
 
-        var Q = JacobianPoint.AtInfinity;
-
-        for (int i = m; i >= 0; i--)
+        foreach (var i in naf)
         {
-            Q = PointDoubleRepeat(Q, Curve.WindowSize);
+            result = DoublePoint(result);
 
-            int startIdx = i * Curve.WindowSize;
-            int endIdx = Math.Min(startIdx + Curve.WindowSize, kBinary.Length);
-
-            if (startIdx < kBinary.Length)
+            if (i != 0)
             {
-                string windowBinary = kBinary.Substring(startIdx, endIdx - startIdx);
-                int d = Convert.ToInt32(windowBinary, 2);
-
-                if (d > 0)
-                {
-                    Q = AddPoints(Q, precomputedPoints[d]);
-                }
+                result = AddPoints(result, savedPoints[i]);
             }
         }
 
-        return Q;
+        return result;
     }
 
-    private static JacobianPoint[] PrecomputePoints(AffinePoint p)
+    private static Dictionary<int, AffinePoint> PrecomputePoints(AffinePoint p)
     {
-        int numPrecomputedPoints = 1 << Curve.WindowSize;
+        var p2 = DoubleJacobianPoint(p.ToJacobian());
 
-        JacobianPoint[] precomputedPoints = new JacobianPoint[numPrecomputedPoints];
+        Dictionary<int, AffinePoint> points = new() { [1] = p };
 
-        precomputedPoints[0] = JacobianPoint.AtInfinity;
-        for (int i = 1; i < numPrecomputedPoints; i++)
-        {
-            precomputedPoints[i] = AddMixedPoints(precomputedPoints[i - 1], p);
-        }
+        points[3] = AddMixedPoints(p2, points[1]).ToAffine();
+        points[5] = AddMixedPoints(p2, points[3]).ToAffine();
+        points[7] = AddMixedPoints(p2, points[5]).ToAffine();
 
-        return precomputedPoints;
+        points[-1] = points[1].Negated;
+        points[-3] = points[3].Negated;
+        points[-5] = points[5].Negated;
+        points[-7] = points[7].Negated;
+
+        return points;
     }
 }

@@ -34,11 +34,11 @@ public class MathUtilitiesTests
     [Test]
     public void TestGenerateWidthWNAF()
     {
-        BigInteger d1 = 75;
+        BigInteger d = 75;
 
-        var expected = new List<int> { 11, 0, 0, 0, 0, 0, 1, 0 };
+        var expected = new List<int> { 5, 0, 0, 0, -5 };
 
-        var result = MathUtilities.GenerateWidthWNAF(d1);
+        var result = MathUtilities.GenerateWidthWNAF(d);
 
         Assert.AreEqual(expected, result);
     }
