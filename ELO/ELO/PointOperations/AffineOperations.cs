@@ -1,6 +1,5 @@
 ﻿using ELO.ECDH;
 using ELO.Points;
-using System.Linq;
 
 namespace ELO.PointOperations;
 
@@ -51,17 +50,6 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
         if (y3 < 0) y3 += Curve.P;
 
         return new AffinePoint(x3, y3);
-    }
-
-    private static AffinePoint PointDoubleRepeat(AffinePoint point, int times)
-    {
-        AffinePoint result = point;
-
-        for (int i = 0; i < times; i++)
-        {
-            result = DoubleAffinePoint(result);
-        }
-        return result;
     }
 
     public AffinePoint MultiplyPoint(BigInteger k, AffinePoint p)

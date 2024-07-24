@@ -1,5 +1,4 @@
 ﻿using ELO.Points;
-using ELO;
 using System.Numerics;
 using ELO.ECDH;
 

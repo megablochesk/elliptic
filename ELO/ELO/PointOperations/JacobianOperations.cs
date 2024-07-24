@@ -106,17 +106,6 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         return new JacobianPoint(d, y3, z3);
     }
 
-    private static JacobianPoint PointDoubleRepeat(JacobianPoint point, int times)
-    {
-        JacobianPoint result = point;
-
-        for (int i = 0; i < times; i++)
-        {
-            result = DoubleJacobianPoint(result);
-        }
-        return result;
-    }
-
     public AffinePoint MultiplyPoint(BigInteger k, AffinePoint p)
     {
         if (k == BigInteger.Zero) return AffinePoint.AtInfinity;
