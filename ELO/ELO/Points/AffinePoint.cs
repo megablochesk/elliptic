@@ -5,7 +5,7 @@ public record AffinePoint(BigInteger X, BigInteger Y) : Point
     public BigInteger X { get; } = X;
     public BigInteger Y { get; } = Y;
 
-    public override bool IsAtInfinity => Y == 0 && X == 0;
+    public virtual bool IsAtInfinity => Y == 0 && X == 0;
 
     public override bool IsPointOnCurve()
     {
@@ -16,12 +16,9 @@ public record AffinePoint(BigInteger X, BigInteger Y) : Point
 
     public AffinePoint Negated => new(X, -Y % Curve.P);
 
-    public JacobianPoint ToJacobian()
-    {
-        return new JacobianPoint(X, Y, 1);
-    }
+    public JacobianPoint ToJacobian() => new(X, Y, Z: BigInteger.One);
 
-    public static AffinePoint AtInfinity => new(0, 0);
+    public static AffinePoint AtInfinity => new(X: 0, Y: 0);
 
     public static bool ArePointsEqual(AffinePoint first, AffinePoint second) =>
         (first.X - second.X) % Curve.P == 0

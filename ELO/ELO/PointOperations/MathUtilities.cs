@@ -6,15 +6,14 @@ public static class MathUtilities
 {
     private static readonly BigInteger P256 = Curve.P;
     private static readonly BigInteger P256X2 = P256 << 1;
-    private static readonly int[] Index = [0, 32, 64, 96, 128, 160, 192, 224];
 
     private static readonly int twoToW = 1 << Curve.WindowSize;
 
-    public static int GetHighestBit(BigInteger k) => (int)(k.GetBitLength() - 1);
+    public static ushort GetHighestBit(BigInteger k) => (ushort)(k.GetBitLength() - 1);
 
     public static bool IsBitSet(BigInteger k, int i) => (k & BigInteger.One << i) != 0;
 
-    public static bool IsOdd(BigInteger number) => (number & 1) == 1;
+    public static bool IsOdd(BigInteger number) => (number & BigInteger.One) == 1;
 
     public static List<int> ComputeNAF(BigInteger k)
     {
@@ -24,7 +23,7 @@ public static class MathUtilities
         {
             if (IsOdd(k))
             {
-                int z = (int)(2 - (k % 4));
+                var z = 2 - (int)(k % 4);
                 naf.Add(z);
                 k -= z;
             }
@@ -72,7 +71,7 @@ public static class MathUtilities
     public static BigInteger ModInverse(BigInteger a, BigInteger p)
     {
         if (p == 1)
-            return 0;
+            return BigInteger.Zero;
 
         if (BigInteger.GreatestCommonDivisor(a, p) != 1)
             throw new InvalidOperationException("Inverse does not exist - a and p must be coprime.");
@@ -94,7 +93,7 @@ public static class MathUtilities
             hexParts[i] = aParts[i].ToString("X8");
         }
 
-        var zeros = "00000000";
+        const string zeros = "00000000";
 
         var tString = "0" + hexParts[7] + hexParts[6] + hexParts[5] + hexParts[4] + hexParts[3] + hexParts[2] + hexParts[1] + hexParts[0];
         var s1String = hexParts[15] + hexParts[14] + hexParts[13] + hexParts[12] + hexParts[11] + zeros + zeros + zeros;
@@ -146,14 +145,14 @@ public static class MathUtilities
         var sb = new StringBuilder();
 
         sb.Append("0");
-        for (int i = 7; i >= 0; i--)
+        for (var i = 7; i >= 0; i--)
         {
             sb.Append(hexParts[i]);
         }
         var tString = sb.ToString();
 
         sb.Clear();
-        for (int i = 15; i >= 11; i--)
+        for (var i = 15; i >= 11; i--)
         {
             sb.Append(hexParts[i]);
         }
@@ -164,7 +163,7 @@ public static class MathUtilities
 
         sb.Clear();
         sb.Append(zeros);
-        for (int i = 15; i >= 12; i--)
+        for (var i = 15; i >= 12; i--)
         {
             sb.Append(hexParts[i]);
         }

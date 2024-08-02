@@ -3,9 +3,9 @@ using ELO.Points;
 
 namespace ELO.PointOperations;
 
-public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<JacobianPoint>
+public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
 {
-    public JacobianPoint AddPoints(JacobianPoint p1, AffinePoint p2)
+    public static JacobianPoint AddPoints(JacobianPoint p1, AffinePoint p2)
     {
         if (p1.IsAtInfinity) return p2.ToJacobian();
         if (p2.IsAtInfinity) return p1;
@@ -13,7 +13,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         return AddMixedPoints(p1, p2);
     }
 
-    public JacobianPoint AddPoints(JacobianPoint p1, JacobianPoint p2)
+    public static JacobianPoint AddPoints(JacobianPoint p1, JacobianPoint p2)
     {
         if (p1.IsAtInfinity) return p2;
         if (p2.IsAtInfinity) return p1;
@@ -82,7 +82,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         return new JacobianPoint(x3, y3, z3);
     }
 
-    public JacobianPoint DoublePoint(JacobianPoint p)
+    public static JacobianPoint DoublePoint(JacobianPoint p)
     {
         if (p.IsAtInfinity) return JacobianPoint.AtInfinity;
 
@@ -124,7 +124,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         return result.ToAffine();
     }
 
-    private JacobianPoint MultiplyPointLeftToRight(BigInteger k, AffinePoint p)
+    private static JacobianPoint MultiplyPointLeftToRight(BigInteger k, AffinePoint p)
     {
         JacobianPoint result = JacobianPoint.AtInfinity;
 
@@ -141,7 +141,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         return result;
     }
 
-    private JacobianPoint MultiplyPointMontgomeryLadder(BigInteger k, AffinePoint p)
+    private static JacobianPoint MultiplyPointMontgomeryLadder(BigInteger k, AffinePoint p)
     {
         var r0 = JacobianPoint.AtInfinity;
         var r1 = p.ToJacobian();
@@ -163,7 +163,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         return r0;
     }
 
-    private JacobianPoint MultiplyPointWithNAF(BigInteger k, AffinePoint p)
+    private static JacobianPoint MultiplyPointWithNAF(BigInteger k, AffinePoint p)
     {
         var naf = MathUtilities.ComputeNAF(k);
 
@@ -180,7 +180,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations<
         return result;
     }
 
-    private JacobianPoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
+    private static JacobianPoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
     {
         var savedPoints = PrecomputePoints(p);
         var naf = MathUtilities.GenerateWidthWNAF(k);

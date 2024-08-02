@@ -4,8 +4,7 @@ using ELO.Points;
 
 namespace ELO.ECDH;
 
-public class ECDH<TPoint>(IPointOperations<TPoint> operations) : IECDH
-    where TPoint : Point 
+public class ECDH(IPointOperations operations) : IECDH
 {
     public BigInteger GeneratePrivateKey()
     {

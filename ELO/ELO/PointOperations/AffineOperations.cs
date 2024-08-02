@@ -3,9 +3,9 @@ using ELO.Points;
 
 namespace ELO.PointOperations;
 
-public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<AffinePoint>
+public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
 {
-    public AffinePoint AddPoints(AffinePoint p1, AffinePoint p2)
+    public static AffinePoint AddPoints(AffinePoint p1, AffinePoint p2)
     {
         if (p1.IsAtInfinity) return p2;
         if (p2.IsAtInfinity) return p1;
@@ -33,7 +33,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
         return new AffinePoint(x3, y3);
     }
 
-    public AffinePoint DoublePoint(AffinePoint p)
+    public static AffinePoint DoublePoint(AffinePoint p)
     {
         if (p.IsAtInfinity) return p;
 
@@ -70,7 +70,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
         return result;
     }
 
-    private AffinePoint MultiplyPointLeftToRight(BigInteger k, AffinePoint p)
+    private static AffinePoint MultiplyPointLeftToRight(BigInteger k, AffinePoint p)
     {
         AffinePoint result = AffinePoint.AtInfinity;
 
@@ -87,7 +87,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
         return result;
     }
 
-    private AffinePoint MultiplyPointMontgomeryLadder(BigInteger k, AffinePoint p)
+    private static AffinePoint MultiplyPointMontgomeryLadder(BigInteger k, AffinePoint p)
     {
         var r0 = AffinePoint.AtInfinity;
         var r1 = p;
@@ -109,7 +109,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
         return r0;
     }
 
-    private AffinePoint MultiplyPointWithNAF(BigInteger k, AffinePoint p)
+    private static AffinePoint MultiplyPointWithNAF(BigInteger k, AffinePoint p)
     {
         var naf = MathUtilities.ComputeNAF(k);
 
@@ -126,7 +126,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations<Af
         return result;
     }
 
-    private AffinePoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
+    private static AffinePoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
     {
         var savedPoints = PrecomputePoints(p);
         var naf = MathUtilities.GenerateWidthWNAF(k);

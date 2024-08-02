@@ -2,10 +2,8 @@
 
 namespace ELO.PointOperations;
 
-public interface IPointOperations<TPoint> where TPoint : Point
+public interface IPointOperations
 {
-    TPoint AddPoints(TPoint p1, AffinePoint p2);
-    TPoint DoublePoint(TPoint p);
     AffinePoint MultiplyPoint(BigInteger k, AffinePoint p);
 }
 

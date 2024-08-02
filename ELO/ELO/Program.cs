@@ -4,12 +4,12 @@ namespace ELO;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
         var ecdh = ECDHFactory.CreateECDH(AlgorithmType.AffineLeftToRight);
 
-        BigInteger alicePrivateKey = ecdh.GeneratePrivateKey();
-        BigInteger bobPrivateKey = ecdh.GeneratePrivateKey();
+        var alicePrivateKey = ecdh.GeneratePrivateKey();
+        var bobPrivateKey = ecdh.GeneratePrivateKey();
 
         Console.WriteLine(alicePrivateKey);
         Console.WriteLine(bobPrivateKey);

@@ -23,6 +23,6 @@ public class SystemCryptographyTests
         var aliceSharedSecret = alice.DeriveKeyMaterial(CngKey.Import(bobPublicKey, CngKeyBlobFormat.EccPublicBlob));
         var bobSharedSecret = bob.DeriveKeyMaterial(CngKey.Import(alicePublicKey, CngKeyBlobFormat.EccPublicBlob));
 
-        Assert.AreEqual(aliceSharedSecret, bobSharedSecret);
+        Assert.That(bobSharedSecret, Is.EqualTo(aliceSharedSecret));
     }
 }

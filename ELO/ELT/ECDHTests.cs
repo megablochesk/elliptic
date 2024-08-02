@@ -36,8 +36,8 @@ public class ECDHTests
         var expectedX = BigInteger.Parse("704602078891827709968695104567010694948148510878878680802142883200395438103");
         var expectedY = BigInteger.Parse("92103446386463774353525877203731609590400293700811157530711463052594028852461");
 
-        Assert.AreEqual(aliceSharedSecret.X, expectedX);
-        Assert.AreEqual(aliceSharedSecret.Y, expectedY);
+        Assert.That(expectedX, Is.EqualTo(aliceSharedSecret.X));
+        Assert.That(expectedY, Is.EqualTo(aliceSharedSecret.Y));
 
         Assert.That(AffinePoint.ArePointsEqual(aliceSharedSecret, bobSharedSecret));
     }

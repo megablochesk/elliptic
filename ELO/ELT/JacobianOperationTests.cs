@@ -9,8 +9,6 @@ namespace ELT;
 [TestFixture]
 public class JacobianOperationTests
 {
-    readonly JacobianOperations _jacobianOperations = new(AlgorithmType.JacobianLeftToRight);
-
     [Test]
     public void AddPoints_PointAtInfinityWithAnotherPoint_ShouldReturnOtherPoint()
     {
@@ -19,10 +17,10 @@ public class JacobianOperationTests
         var p2 = new AffinePoint(new BigInteger(13), BigInteger.Parse("53404144414778303508799263379260966483386805595332806637100379275867514529459"));
 
         // Act
-        JacobianPoint result = _jacobianOperations.AddPoints(p1, p2);
+        JacobianPoint result = JacobianOperations.AddPoints(p1, p2);
 
         // Assert
-        Assert.AreEqual(p2.ToJacobian(), result);
+        Assert.That(result, Is.EqualTo(p2.ToJacobian()));
     }
 
     [Test]
@@ -32,7 +30,7 @@ public class JacobianOperationTests
         var point = Curve.G.ToJacobian();
 
         // Act
-        JacobianPoint result = _jacobianOperations.DoublePoint(point);
+        JacobianPoint result = JacobianOperations.DoublePoint(point);
 
         Console.WriteLine($"{result.X} {result.Y} {result.Z}");
 
@@ -45,10 +43,10 @@ public class JacobianOperationTests
     {
         // Arrange
         var g = Curve.G;
-        var g2 = _jacobianOperations.DoublePoint(g.ToJacobian());
+        var g2 = JacobianOperations.DoublePoint(g.ToJacobian());
 
         // Act
-        AffinePoint result = _jacobianOperations.AddPoints(g2, g).ToAffine();
+        AffinePoint result = JacobianOperations.AddPoints(g2, g).ToAffine();
 
 
         Console.WriteLine($"{result.X} {result.Y}");
