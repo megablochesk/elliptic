@@ -18,7 +18,7 @@ public static class ECDHFactory
             AlgorithmType.JacobianWithNAF          or
             AlgorithmType.JacobianWindowedMethod =>   new ECDH(PointOperationFactory.GetJacobianOperations(algorithmType)),
 
-            _ => throw new ArgumentException("Unsupported point type")
+            _ => throw new ArgumentException(ExceptionMessages.UnsupportedAlgorithmType)
         };
     }
 }

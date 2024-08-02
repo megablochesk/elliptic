@@ -64,7 +64,8 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
             AlgorithmType.AffineMontgomeryLadder => MultiplyPointMontgomeryLadder(k, p),
             AlgorithmType.AffineWithNAF => MultiplyPointWithNAF(k, p),
             AlgorithmType.AffineWindowedMethod => MultiplyPointWindowedMethod(k, p),
-            _ => throw new InvalidOperationException("Unsupported algorithm type.")
+
+            _ => throw new InvalidOperationException(ExceptionMessages.UnsupportedAlgorithmType)
         };
 
         return result;

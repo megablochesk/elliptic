@@ -118,7 +118,8 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
             AlgorithmType.JacobianMontgomeryLadder => MultiplyPointMontgomeryLadder(k, p),
             AlgorithmType.JacobianWithNAF          => MultiplyPointWithNAF(k, p),
             AlgorithmType.JacobianWindowedMethod   => MultiplyPointWindowedMethod(k, p),
-            _ => throw new InvalidOperationException("Unsupported algorithm type.")
+
+            _ => throw new InvalidOperationException(ExceptionMessages.UnsupportedAlgorithmType)
         };
 
         return result.ToAffine();

@@ -74,7 +74,7 @@ public static class MathUtilities
             return BigInteger.Zero;
 
         if (BigInteger.GreatestCommonDivisor(a, p) != 1)
-            throw new InvalidOperationException("Inverse does not exist - a and p must be coprime.");
+            throw new InvalidOperationException(ExceptionMessages.NoInverseModulo);
 
         return BigInteger.ModPow(a, p - 2, p);
     }

@@ -6,6 +6,6 @@ public abstract record Point
 
     public void EnsureOnCurve()
     {
-        if (!IsPointOnCurve()) throw new ArgumentException("Point is not on curve");
+        if (!IsPointOnCurve()) throw new ArgumentException(ExceptionMessages.PointIsNotOnCurve);
     }
 }
