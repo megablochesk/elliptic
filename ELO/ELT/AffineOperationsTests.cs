@@ -1,6 +1,5 @@
 ﻿using ELO.PointOperations;
 using ELO.Points;
-using ELO;
 using System.Numerics;
 
 namespace ELT;
@@ -8,68 +7,97 @@ namespace ELT;
 [TestFixture]
 public class AffineOperationsTests
 {
+    private static readonly AffinePoint PointOnCurve = new(
+        X: BigInteger.Parse("48439561293906451759052585252797914202762949526041747995844080717082404635286"),
+        Y: BigInteger.Parse("36134250956749795798585127919587881956611106672985015071877198253568414405109"));
+
     [Test]
-    public void AddPoints_PointAtInfinityWithAnotherPoint_ShouldReturnOtherPoint()
+    public void AddPoint_WithPointAtInfinity_ShouldReturnNonInfinityPoint()
     {
         // Arrange
-        var p1 = AffinePoint.AtInfinity;
-        var p2 = new AffinePoint(new BigInteger(13), BigInteger.Parse("53404144414778303508799263379260966483386805595332806637100379275867514529459"));
+        var pointAtInfinity = AffinePoint.AtInfinity;
+        var finitePoint = PointOnCurve;
 
         // Act
-        AffinePoint result = AffineOperations.AddPoints(p1, p2);
+        AffinePoint result = AffineOperations.AddPoints(pointAtInfinity, finitePoint);
 
         // Assert
-        Assert.That(result, Is.EqualTo(p2));
+        Assert.That(result, Is.EqualTo(finitePoint));
     }
 
     [Test]
-    public void AddTwoGPoints_ShouldReturn2G()
+    public void AddPoints_TwoPointsAtInfinity_ShouldReturnPointAtInfinity()
     {
         // Arrange
-        var point = Curve.G;
+        var infinity1 = AffinePoint.AtInfinity;
+        var infinity2 = AffinePoint.AtInfinity;
+
+        // Act
+        AffinePoint result = AffineOperations.AddPoints(infinity1, infinity2);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(AffinePoint.AtInfinity));
+    }
+
+    [Test]
+    public void AddPoints_PointAndItsNegation_ShouldReturnPointAtInfinity()
+    {
+        // Arrange
+        var point = PointOnCurve;
+        var negationOfPoint = new AffinePoint(point.X, -point.Y);
+
+        // Act
+        AffinePoint result = AffineOperations.AddPoints(point, negationOfPoint);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(AffinePoint.AtInfinity));
+    }
+
+
+
+    [Test]
+    public void DoublePoint_StartingFromPointOnCurve_ShouldDoublePointOnCurve()
+    {
+        // Arrange
+        var point = PointOnCurve;
 
         // Act
         AffinePoint result = AffineOperations.DoublePoint(point);
 
-        Console.WriteLine($"{result.X} {result.Y}");
+        // Assert
+        Assert.IsTrue(result.IsPointOnCurve());
+    }
+
+    [Test]
+    public void AddPoints_AddingPointOnCurveToItsDouble_ShouldResultInTriplePoint()
+    {
+        // Arrange
+        var point = PointOnCurve;
+        var doublePoint = AffineOperations.DoublePoint(point);
+
+        // Act
+        AffinePoint result = AffineOperations.AddPoints(doublePoint, point);
 
         // Assert
         Assert.IsTrue(result.IsPointOnCurve());
     }
 
     [Test]
-    public void AddGTo2G_ShouldReturn3G()
+    public void AddPoints_SubtractingPointOnCurveFromItsDouble_ShouldReturnPointOnCurve()
     {
         // Arrange
-        var g = Curve.G;
-        var g2 = AffineOperations.DoublePoint(g);
+        var point = PointOnCurve;
+        var pointNegated = point.Negated;
+        var doublePoint = AffineOperations.DoublePoint(point);
 
         // Act
-        var result = AffineOperations.AddPoints(g2, g);
-
-
-        Console.WriteLine($"{result.X} {result.Y}");
+        AffinePoint result = AffineOperations.AddPoints(doublePoint, pointNegated);
 
         // Assert
-        Assert.IsTrue(result.IsPointOnCurve());
-    }
-
-    [Test]
-    public void Subtract2GAndG_ShouldReturnG()
-    {
-        // Arrange
-        var g = Curve.G;
-        var negativeG = g.Negated;
-        var g2 = AffineOperations.DoublePoint(g);
-
-        // Act
-        var result = AffineOperations.AddPoints(g2, negativeG);
-
-
-        Console.WriteLine($"{result.X} {result.Y}");
-
-        // Assert
-        Assert.IsTrue(result.IsPointOnCurve());
-        Assert.IsTrue(AffinePoint.ArePointsEqual(result, g));
+        Assert.Multiple(() =>
+        {
+            Assert.IsTrue(result.IsPointOnCurve());
+            Assert.IsTrue(AffinePoint.ArePointsEqual(result, point));
+        });
     }
 }

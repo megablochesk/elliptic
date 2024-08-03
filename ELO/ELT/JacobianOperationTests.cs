@@ -8,51 +8,63 @@ namespace ELT;
 [TestFixture]
 public class JacobianOperationTests
 {
-    [Test]
-    public void AddPoints_PointAtInfinityWithAnotherPoint_ShouldReturnOtherPoint()
-    {
-        // Arrange
-        var p1 = JacobianPoint.AtInfinity;
-        var p2 = new AffinePoint(new BigInteger(13), BigInteger.Parse("53404144414778303508799263379260966483386805595332806637100379275867514529459"));
-
-        // Act
-        JacobianPoint result = JacobianOperations.AddPoints(p1, p2);
-
-        // Assert
-        Assert.That(result, Is.EqualTo(p2.ToJacobian()));
-    }
+    private static readonly JacobianPoint PointOnCurve = new(
+        X: BigInteger.Parse("48439561293906451759052585252797914202762949526041747995844080717082404635286"),
+        Y: BigInteger.Parse("36134250956749795798585127919587881956611106672985015071877198253568414405109"),
+        Z: BigInteger.One);
 
     [Test]
-    public void AddTwoGPoints_ShouldReturn2G()
+    public void DoublePoint_UsingGeneratorPoint_ShouldReturnDoubledJacobianPoint()
     {
         // Arrange
-        var point = Curve.G.ToJacobian();
+        var point = PointOnCurve;
 
         // Act
         JacobianPoint result = JacobianOperations.DoublePoint(point);
 
-        Console.WriteLine($"{result.X} {result.Y} {result.Z}");
+        // Assert
+        Assert.IsTrue(result.IsPointOnCurve());
+    }
+
+    [Test]
+    public void AddPoints_AddingPointOnCurveToItsDouble_ShouldYieldTriplePointInAffine()
+    {
+        // Arrange
+        var point = PointOnCurve;
+        var doubledPoint = JacobianOperations.DoublePoint(point);
+
+        // Act
+        JacobianPoint result = JacobianOperations.AddPoints(doubledPoint, point);
+
 
         // Assert
         Assert.IsTrue(result.IsPointOnCurve());
     }
 
     [Test]
-    public void AddGTo2G_ShouldReturn3G()
+    public void DoublePoint_PointAtInfinity_ShouldRemainAtInfinity()
     {
         // Arrange
-        var g = Curve.G;
-        var g2 = JacobianOperations.DoublePoint(g.ToJacobian());
+        var pointAtInfinity = JacobianPoint.AtInfinity;
 
         // Act
-        AffinePoint result = JacobianOperations.AddPoints(g2, g).ToAffine();
-
-
-        Console.WriteLine($"{result.X} {result.Y}");
+        JacobianPoint result = JacobianOperations.DoublePoint(pointAtInfinity);
 
         // Assert
-        Assert.IsTrue(result.IsPointOnCurve());
+        Assert.That(result, Is.EqualTo(JacobianPoint.AtInfinity));
     }
 
+    [Test]
+    public void AddPoints_PointAndItsNegation_ShouldReturnPointAtInfinity()
+    {
+        // Arrange
+        var point = PointOnCurve;
+        JacobianPoint negation = PointOnCurve.Negated;
 
+        // Act
+        JacobianPoint result = JacobianOperations.AddPoints(point, negation);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(JacobianPoint.AtInfinity));
+    }
 }

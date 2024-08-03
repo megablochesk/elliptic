@@ -9,82 +9,82 @@ public static class MathUtilities
 
     private static readonly int twoToW = 1 << Curve.WindowSize;
 
-    public static ushort GetHighestBit(BigInteger k) => (ushort)(k.GetBitLength() - 1);
+    public static ushort GetHighestBit(BigInteger number) => (ushort)(number.GetBitLength() - 1);
 
-    public static bool IsBitSet(BigInteger k, int i) => (k & BigInteger.One << i) != 0;
+    public static bool IsBitSet(BigInteger number, int bit) => (number & BigInteger.One << bit) != 0;
 
     public static bool IsOdd(BigInteger number) => (number & BigInteger.One) == 1;
 
-    public static List<int> ComputeNAF(BigInteger k)
+    public static List<int> ComputeNAF(BigInteger number)
     {
         List<int> naf = [];
 
-        while (k > 0)
+        while (number > 0)
         {
-            if (IsOdd(k))
+            if (IsOdd(number))
             {
-                var z = 2 - (int)(k % 4);
+                var z = 2 - (int)(number % 4);
                 naf.Add(z);
-                k -= z;
+                number -= z;
             }
             else
             {
                 naf.Add(0);
             }
 
-            k >>= 1;
+            number >>= 1;
         }
 
         return naf;
     }
 
-    public static List<int> GenerateWidthWNAF(BigInteger k)
+    public static List<int> GenerateWidthWNAF(BigInteger number)
     {
         var result = new List<int>();
 
-        while (k > 0)
+        while (number > 0)
         {
-            if (IsOdd(k))
+            if (IsOdd(number))
             {
-                var ki = SignedModulo(k);
+                var ki = SignedModulo(number);
                 result.Insert(0,ki);
 
-                k -= ki;
+                number -= ki;
             }
             else result.Insert(0, 0);
 
-            k >>= 1;
+            number >>= 1;
         }
 
         return result;
     }
 
-    public static int SignedModulo(BigInteger k)
+    public static int SignedModulo(BigInteger number)
     {
         var twoToWMinusOne = twoToW >> 1;  // 2^(w-1)
 
-        var modResult = (int)(k % twoToW);  // d mod 2^w
+        var modResult = (int)(number % twoToW);  // d mod 2^w
 
         return modResult >= twoToWMinusOne ? modResult - twoToW : modResult;
     }
 
-    public static BigInteger ModInverse(BigInteger a, BigInteger p)
+    public static BigInteger ModInverse(BigInteger number, BigInteger modulo)
     {
-        if (p == 1)
+        if (modulo == 1)
             return BigInteger.Zero;
 
-        if (BigInteger.GreatestCommonDivisor(a, p) != 1)
+        if (BigInteger.GreatestCommonDivisor(number, modulo) != 1)
             throw new InvalidOperationException(ExceptionMessages.NoInverseModulo);
 
-        return BigInteger.ModPow(a, p - 2, p);
+        return BigInteger.ModPow(number, modulo - 2, modulo);
     }
 
-    public static BigInteger FastModuloP256(BigInteger a)
+    public static BigInteger FastModuloP256(BigInteger number)
     {
         var aParts = new uint[16];
         for (var i = 0; i < 16; i++)
         {
-            aParts[i] = (uint)((a >> (i * 32)) & 0xFFFFFFFF);
+            aParts[i] = (uint)((number >> (i * 32)) & 0xFFFFFFFF);
         }
 
         var hexParts = new string[16];
@@ -127,12 +127,12 @@ public static class MathUtilities
         return r;
     }
 
-    public static BigInteger FastModuloP256WithBuilder(BigInteger a)
+    public static BigInteger FastModuloP256WithBuilder(BigInteger number)
     {
         var aParts = new uint[16];
         for (var i = 0; i < 16; i++)
         {
-            aParts[i] = (uint)((a >> (i * 32)) & 0xFFFFFFFF);
+            aParts[i] = (uint)((number >> (i * 32)) & 0xFFFFFFFF);
         }
 
         var zeros = "00000000";

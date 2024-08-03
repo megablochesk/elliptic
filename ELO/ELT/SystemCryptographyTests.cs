@@ -6,7 +6,7 @@ namespace ELT;
 public class SystemCryptographyTests
 {
     [Test]
-    public static void SystemCryptographyTest()
+    public static void ECDiffieHellman_ShouldGenerateIdenticalSharedSecrets_WhenExchangingPublicKeys()
     {
         using var alice = new ECDiffieHellmanCng(CngKey.Create(CngAlgorithm.ECDiffieHellmanP256));
         using var bob = new ECDiffieHellmanCng(CngKey.Create(CngAlgorithm.ECDiffieHellmanP256));

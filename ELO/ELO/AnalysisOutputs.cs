@@ -4,13 +4,13 @@ namespace ELO;
 
 public static class AnalysisOutputs
 {
-    public static void VerifySharedSecrets(AffinePoint aliceSharedSecret, AffinePoint bobSharedSecret)
+    public static void VerifySharedSecrets(AffinePoint sharedSecretA, AffinePoint sharedSecretB)
     {
-        aliceSharedSecret.EnsureOnCurve();
-        bobSharedSecret.EnsureOnCurve();
+        sharedSecretA.EnsureOnCurve();
+        sharedSecretB.EnsureOnCurve();
 
-        Console.WriteLine("Alice's shared secret: " + aliceSharedSecret);
-        Console.WriteLine("Bob's shared secret: " + bobSharedSecret);
-        Console.WriteLine("Shared secrets are equal: " + AffinePoint.ArePointsEqual(aliceSharedSecret, bobSharedSecret));
+        Console.WriteLine("Alice's shared secret: " + sharedSecretA);
+        Console.WriteLine("Bob's shared secret: " + sharedSecretB);
+        Console.WriteLine("Shared secrets are equal: " + AffinePoint.ArePointsEqual(sharedSecretA, sharedSecretB));
     }
 }

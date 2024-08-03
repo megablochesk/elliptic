@@ -18,6 +18,8 @@ public record JacobianPoint(BigInteger X, BigInteger Y, BigInteger Z) : Point
              - BigInteger.Pow(Y, 2)) % Curve.P == 0;
     }
 
+    public JacobianPoint Negated => new(X, -Y % Curve.P, Z);
+
     public AffinePoint ToAffine()
     {
         if (IsAtInfinity) return AffinePoint.AtInfinity;

@@ -5,27 +5,27 @@ namespace ELO.PointOperations;
 
 public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
 {
-    public static AffinePoint AddPoints(AffinePoint p1, AffinePoint p2)
+    public static AffinePoint AddPoints(AffinePoint point1, AffinePoint point2)
     {
-        if (p1.IsAtInfinity) return p2;
-        if (p2.IsAtInfinity) return p1;
+        if (point1.IsAtInfinity) return point2;
+        if (point2.IsAtInfinity) return point1;
 
-        if (p1.X == p2.X)
+        if (point1.X == point2.X)
         {
-            if (p1.Y == p2.Y)
-                return DoubleAffinePoint(p1);
+            if (point1.Y == point2.Y)
+                return DoubleAffinePoint(point1);
 
             return AffinePoint.AtInfinity;
         }
 
-        return AddAffinePoints(p1, p2);
+        return AddAffinePoints(point1, point2);
     }
 
-    private static AffinePoint AddAffinePoints(AffinePoint p1, AffinePoint p2)
+    private static AffinePoint AddAffinePoints(AffinePoint point1, AffinePoint point2)
     {
-        BigInteger lambda = (p2.Y - p1.Y) * MathUtilities.ModInverse(p2.X - p1.X, Curve.P) % Curve.P;
-        BigInteger x3 = (lambda * lambda - p1.X - p2.X) % Curve.P;
-        BigInteger y3 = (lambda * (p1.X - x3) - p1.Y) % Curve.P;
+        var lambda = (point2.Y - point1.Y) * MathUtilities.ModInverse(point2.X - point1.X, Curve.P) % Curve.P;
+        var x3 = (lambda * lambda - point1.X - point2.X) % Curve.P;
+        var y3 = (lambda * (point1.X - x3) - point1.Y) % Curve.P;
 
         if (x3 < 0) x3 += Curve.P;
         if (y3 < 0) y3 += Curve.P;
@@ -33,18 +33,18 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
         return new AffinePoint(x3, y3);
     }
 
-    public static AffinePoint DoublePoint(AffinePoint p)
+    public static AffinePoint DoublePoint(AffinePoint point)
     {
-        if (p.IsAtInfinity) return p;
+        if (point.IsAtInfinity) return point;
 
-        return DoubleAffinePoint(p);
+        return DoubleAffinePoint(point);
     }
 
     private static AffinePoint DoubleAffinePoint(AffinePoint point)
     {
-        BigInteger lambda = (3 * point.X * point.X + Curve.A) * MathUtilities.ModInverse(2 * point.Y, Curve.P) % Curve.P;
-        BigInteger x3 = (lambda * lambda - 2 * point.X) % Curve.P;
-        BigInteger y3 = (lambda * (point.X - x3) - point.Y) % Curve.P;
+        var lambda = (3 * point.X * point.X + Curve.A) * MathUtilities.ModInverse(2 * point.Y, Curve.P) % Curve.P;
+        var x3 = (lambda * lambda - 2 * point.X) % Curve.P;
+        var y3 = (lambda * (point.X - x3) - point.Y) % Curve.P;
 
         if (x3 < 0) x3 += Curve.P;
         if (y3 < 0) y3 += Curve.P;
@@ -52,18 +52,20 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
         return new AffinePoint(x3, y3);
     }
 
-    public AffinePoint MultiplyPoint(BigInteger k, AffinePoint p)
+    public AffinePoint MultiplyPoint(BigInteger k, AffinePoint point)
     {
-        if (k == BigInteger.Zero) return AffinePoint.AtInfinity;
+        if (k < 0) throw new ArgumentException( ExceptionMessages.ValueCanNotBeNegative);
+        point.EnsureOnCurve();
 
-        p.EnsureOnCurve();
+        if (k == BigInteger.Zero) return AffinePoint.AtInfinity;
+        
 
         var result = algorithmType switch
         {
-            AlgorithmType.AffineLeftToRight => MultiplyPointLeftToRight(k, p),
-            AlgorithmType.AffineMontgomeryLadder => MultiplyPointMontgomeryLadder(k, p),
-            AlgorithmType.AffineWithNAF => MultiplyPointWithNAF(k, p),
-            AlgorithmType.AffineWindowedMethod => MultiplyPointWindowedMethod(k, p),
+            AlgorithmType.AffineLeftToRight => MultiplyPointLeftToRight(k, point),
+            AlgorithmType.AffineMontgomeryLadder => MultiplyPointMontgomeryLadder(k, point),
+            AlgorithmType.AffineWithNAF => MultiplyPointWithNAF(k, point),
+            AlgorithmType.AffineWindowedMethod => MultiplyPointWindowedMethod(k, point),
 
             _ => throw new InvalidOperationException(ExceptionMessages.UnsupportedAlgorithmType)
         };
@@ -71,7 +73,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
         return result;
     }
 
-    private static AffinePoint MultiplyPointLeftToRight(BigInteger k, AffinePoint p)
+    private static AffinePoint MultiplyPointLeftToRight(BigInteger k, AffinePoint point)
     {
         AffinePoint result = AffinePoint.AtInfinity;
 
@@ -81,17 +83,17 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
 
             if (MathUtilities.IsBitSet(k, i))
             {
-                result = AddPoints(result, p);
+                result = AddPoints(result, point);
             }
         }
 
         return result;
     }
 
-    private static AffinePoint MultiplyPointMontgomeryLadder(BigInteger k, AffinePoint p)
+    private static AffinePoint MultiplyPointMontgomeryLadder(BigInteger k, AffinePoint point)
     {
         var r0 = AffinePoint.AtInfinity;
-        var r1 = p;
+        var r1 = point;
 
         for (int i = MathUtilities.GetHighestBit(k); i >= 0; i--)
         {
@@ -110,7 +112,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
         return r0;
     }
 
-    private static AffinePoint MultiplyPointWithNAF(BigInteger k, AffinePoint p)
+    private static AffinePoint MultiplyPointWithNAF(BigInteger k, AffinePoint point)
     {
         var naf = MathUtilities.ComputeNAF(k);
 
@@ -120,16 +122,16 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
         {
             result = DoublePoint(result);
 
-            if (naf[i] == -1) result = AddPoints(result, p.Negated);
-            else if (naf[i] == 1) result = AddPoints(result, p);
+            if (naf[i] == -1) result = AddPoints(result, point.Negated);
+            else if (naf[i] == 1) result = AddPoints(result, point);
         }
 
         return result;
     }
 
-    private static AffinePoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint p)
+    private static AffinePoint MultiplyPointWindowedMethod(BigInteger k, AffinePoint point)
     {
-        var savedPoints = PrecomputePoints(p);
+        var savedPoints = PrecomputePoints(point);
         var naf = MathUtilities.GenerateWidthWNAF(k);
 
         var result = AffinePoint.AtInfinity;
@@ -147,11 +149,11 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
         return result;
     }
 
-    private static Dictionary<int, AffinePoint> PrecomputePoints(AffinePoint p)
+    private static Dictionary<int, AffinePoint> PrecomputePoints(AffinePoint point)
     {
-        var p2 = DoubleAffinePoint(p);
+        var p2 = DoubleAffinePoint(point);
 
-        Dictionary<int, AffinePoint> points = new() { [1] = p };
+        Dictionary<int, AffinePoint> points = new() { [1] = point };
 
         points[3] = AddAffinePoints(points[1], p2);
         points[5] = AddAffinePoints(points[3], p2);

@@ -42,9 +42,12 @@ public class ECDHTests
         var expectedX = ExpectedX;
         var expectedY = ExpectedY;
 
-        Assert.That(expectedX, Is.EqualTo(aliceSharedSecret.X));
-        Assert.That(expectedY, Is.EqualTo(aliceSharedSecret.Y));
+        Assert.Multiple(() =>
+        {
+            Assert.That(expectedX, Is.EqualTo(aliceSharedSecret.X));
+            Assert.That(expectedY, Is.EqualTo(aliceSharedSecret.Y));
 
-        Assert.That(AffinePoint.ArePointsEqual(aliceSharedSecret, bobSharedSecret));
+            Assert.That(AffinePoint.ArePointsEqual(aliceSharedSecret, bobSharedSecret));
+        });
     }
 }

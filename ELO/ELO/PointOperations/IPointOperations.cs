@@ -4,6 +4,6 @@ namespace ELO.PointOperations;
 
 public interface IPointOperations
 {
-    AffinePoint MultiplyPoint(BigInteger k, AffinePoint p);
+    AffinePoint MultiplyPoint(BigInteger k, AffinePoint point);
 }
 
