@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using ELO;
-using ELO.PointOperations;
+using ELO.StandardMath;
 
 namespace ELT;
 
@@ -22,7 +22,7 @@ public class MathUtilitiesTests
         var expectedStandardModulo = input % Curve.P;
 
         // Act
-        var result = MathUtilities.FastModuloP256(input);
+        var result = FastModuloP256.NotOptimisedFastModulo(input);
 
         // Assert
         Assert.Multiple(() =>
@@ -42,7 +42,7 @@ public class MathUtilitiesTests
         var expectedStandardModulo = input % Curve.P;
 
         // Act
-        var result = MathUtilities.FastModuloP256WithBuilder(input);
+        var result = FastModuloP256.OptimisedFastModulo(input);
 
         // Assert
         Assert.Multiple(() =>
