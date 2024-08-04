@@ -6,7 +6,7 @@ namespace ELO.ECDH;
 
 public class ECDH(IPointOperations operations) : IECDH
 {
-    public BigInteger GeneratePrivateKey()
+    public static BigInteger GeneratePrivateKey()
     {
         var bytes = new byte[32];
         BigInteger privateKey;
