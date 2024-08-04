@@ -24,18 +24,18 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
 
     private static JacobianPoint AddMixedPoints(JacobianPoint point1, AffinePoint point2)
     {
-        var a = point2.X * BigInteger.Pow(point1.Z, 2) % Curve.P;
-        var b = point2.Y * BigInteger.Pow(point1.Z, 3) % Curve.P;
+        var a = point2.X * BigInteger.Pow(point1.Z, 2).MixedModulo();
+        var b = point2.Y * BigInteger.Pow(point1.Z, 3).MixedModulo();
 
-        var c = (a - point1.X) % Curve.P;
-        var d = (b - point1.Y) % Curve.P;
+        var c = (a - point1.X).MixedModulo();
+        var d = (b - point1.Y).MixedModulo();
 
-        var c2 = BigInteger.Pow(c, 2) % Curve.P;
-        var c3 = BigInteger.Multiply(c2, c) % Curve.P;
+        var c2 = BigInteger.Pow(c, 2).MixedModulo();
+        var c3 = BigInteger.Multiply(c2, c).MixedModulo();
 
-        var x3 = (d * d - (c3 + (point1.X * c2 << 1))) % Curve.P;
-        var y3 = (d * (point1.X * c2 - x3) - point1.Y * c3) % Curve.P;
-        var z3 = point1.Z * c % Curve.P;
+        var x3 = (d * d - (c3 + (point1.X * c2 << 1))).MixedModulo();
+        var y3 = (d * (point1.X * c2 - x3) - point1.Y * c3).MixedModulo();
+        var z3 = (point1.Z * c).MixedModulo();
 
         if (x3 < 0) x3 += Curve.P;
         if (y3 < 0) y3 += Curve.P;
@@ -46,17 +46,17 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
 
     private static JacobianPoint AddJacobianPoints(JacobianPoint point1, JacobianPoint point2)
     {
-        BigInteger Z1Z1 = point1.Z * point1.Z % Curve.P;
-        BigInteger Z2Z2 = point2.Z * point2.Z % Curve.P;
+        BigInteger Z1Z1 = (point1.Z * point1.Z).MixedModulo();
+        BigInteger Z2Z2 = (point2.Z * point2.Z).MixedModulo();
 
-        BigInteger u1 = point1.X * Z2Z2 % Curve.P;
-        BigInteger u2 = point2.X * Z1Z1 % Curve.P;
+        BigInteger u1 = (point1.X * Z2Z2).MixedModulo();
+        BigInteger u2 = (point2.X * Z1Z1).MixedModulo();
 
-        BigInteger Y1Z2 = point1.Y * point2.Z % Curve.P;
-        BigInteger Y2Z1 = point2.Y * point1.Z % Curve.P;
+        BigInteger Y1Z2 = (point1.Y * point2.Z).MixedModulo();
+        BigInteger Y2Z1 = (point2.Y * point1.Z).MixedModulo();
 
-        BigInteger s1 = Y1Z2 * Z2Z2 % Curve.P;
-        BigInteger s2 = Y2Z1 * Z1Z1 % Curve.P;
+        BigInteger s1 = (Y1Z2 * Z2Z2).MixedModulo();
+        BigInteger s2 = (Y2Z1 * Z1Z1).MixedModulo();
 
         if (u1 == u2)
         {
@@ -68,12 +68,12 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
 
         BigInteger h = u2 - u1;
         BigInteger I = BigInteger.ModPow(h << 1, 2, Curve.P);
-        BigInteger j = h * I % Curve.P;
-        BigInteger r = 2 * (s2 - s1) % Curve.P;
-        BigInteger v = u1 * I % Curve.P;
+        BigInteger j = (h * I).MixedModulo();
+        BigInteger r = ((s2 - s1) << 1).MixedModulo();
+        BigInteger v = (u1 * I).MixedModulo();
 
-        BigInteger x3 = (r * r - j - 2 * v) % Curve.P;
-        BigInteger y3 = (r * (v - x3) - 2 * s1 * j) % Curve.P;
+        BigInteger x3 = (r * r - j - 2 * v).MixedModulo();
+        BigInteger y3 = (r * (v - x3) - 2 * s1 * j).MixedModulo();
         BigInteger z3 = (BigInteger.ModPow(point1.Z + point2.Z,2, Curve.P) - Z1Z1 - Z2Z2) * h % Curve.P;
 
         if (x3 < 0) x3 += Curve.P;
@@ -92,17 +92,17 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
 
     private static JacobianPoint DoubleJacobianPoint(JacobianPoint point)
     {
-        var a = (point.X << 2) * BigInteger.Pow(point.Y, 2) % Curve.P;
-        var b = (BigInteger.Pow(point.Y, 4) << 3) % Curve.P;
+        var a = ((point.X << 2) * BigInteger.Pow(point.Y, 2)).MixedModulo();
+        var b = (BigInteger.Pow(point.Y, 4) << 3).MixedModulo();
 
 
-        var z2 = BigInteger.Pow(point.Z, 2) % Curve.P;
+        var z2 = BigInteger.Pow(point.Z, 2).MixedModulo();
 
-        var c = 3 * (point.X - z2) * (point.X + z2) % Curve.P;
-        var d = ((-a << 1) + c * c) % Curve.P;    // equal to x3
+        var c = (3 * (point.X - z2) * (point.X + z2)).MixedModulo();
+        var d = ((-a << 1) + c * c).MixedModulo();    // equal to x3
 
-        var y3 = (c * (a - d) - b) % Curve.P;
-        var z3 = ((point.Y * point.Z) << 1) % Curve.P;
+        var y3 = (c * (a - d) - b).MixedModulo();
+        var z3 = ((point.Y * point.Z) << 1).MixedModulo();
 
         return new JacobianPoint(d, y3, z3);
     }

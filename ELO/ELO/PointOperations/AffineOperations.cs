@@ -24,9 +24,9 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
 
     private static AffinePoint AddAffinePoints(AffinePoint point1, AffinePoint point2)
     {
-        var lambda = (point2.Y - point1.Y) * MathUtilities.ModInverse(point2.X - point1.X, Curve.P) % Curve.P;
-        var x3 = (lambda * lambda - point1.X - point2.X) % Curve.P;
-        var y3 = (lambda * (point1.X - x3) - point1.Y) % Curve.P;
+        var lambda = ((point2.Y - point1.Y) * MathUtilities.ModInverse(point2.X - point1.X, Curve.P)).MixedModulo();
+        var x3 = (lambda * lambda - point1.X - point2.X).MixedModulo();
+        var y3 = (lambda * (point1.X - x3) - point1.Y).MixedModulo();
 
         if (x3 < 0) x3 += Curve.P;
         if (y3 < 0) y3 += Curve.P;
@@ -43,9 +43,9 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
 
     private static AffinePoint DoubleAffinePoint(AffinePoint point)
     {
-        var lambda = (3 * point.X * point.X + Curve.A) * MathUtilities.ModInverse(2 * point.Y, Curve.P) % Curve.P;
-        var x3 = (lambda * lambda - 2 * point.X) % Curve.P;
-        var y3 = (lambda * (point.X - x3) - point.Y) % Curve.P;
+        var lambda = ((3 * point.X * point.X + Curve.A) * MathUtilities.ModInverse(2 * point.Y, Curve.P)).MixedModulo();
+        var x3 = (lambda * lambda - 2 * point.X).MixedModulo();
+        var y3 = (lambda * (point.X - x3) - point.Y).MixedModulo();
 
         if (x3 < 0) x3 += Curve.P;
         if (y3 < 0) y3 += Curve.P;

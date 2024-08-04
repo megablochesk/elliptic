@@ -42,7 +42,7 @@ public class MathUtilitiesTests
         var expectedStandardModulo = input % Curve.P;
 
         // Act
-        var result = FastModuloP256.OptimisedFastModulo(input);
+        var result = FastModuloP256.FastModulo(input);
 
         // Assert
         Assert.Multiple(() =>

@@ -1,4 +1,5 @@
 ﻿using ELO.ECDH;
+using ELO.Points;
 using ELO.StatisticsCollector;
 
 const int sampleSize = 1000;
@@ -35,6 +36,11 @@ void RunECDHExchange(BigInteger alicePrivateKey, BigInteger bobPrivateKey, IECDH
 
     var aliceSharedSecret = ecdh.DeriveSharedSecret(alicePrivateKey, bobPublicKey);
     var bobSharedSecret = ecdh.DeriveSharedSecret(bobPrivateKey, alicePublicKey);
+
+    aliceSharedSecret.IsPointOnCurve();
+    bobSharedSecret.IsPointOnCurve();
+
+    AffinePoint.ArePointsEqual(aliceSharedSecret, bobSharedSecret);
 }
 
 List<(BigInteger, BigInteger)> GeneratePrivateKeysList(int size)

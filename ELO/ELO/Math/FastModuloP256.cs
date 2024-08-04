@@ -58,7 +58,12 @@ public static class FastModuloP256
         return r;
     }
 
-    public static BigInteger OptimisedFastModulo(BigInteger number)
+    public static BigInteger MixedModulo(this BigInteger number) => 
+        number.GetBitLength() <= 512 && number >= BigInteger.Zero 
+            ? number.FastModulo() 
+            : number % P256;
+
+    public static BigInteger FastModulo(this BigInteger number)
     {
         var hexParts = BigIntegerToHexString(number);
 
