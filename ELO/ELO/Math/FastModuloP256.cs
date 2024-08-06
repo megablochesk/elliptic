@@ -62,6 +62,11 @@ public static class FastModuloP256
     {
         var hexParts = BigIntegerToHexString(number);
 
+        return CalculateRemainder(hexParts);
+    }
+
+    private static BigInteger CalculateRemainder(string[] hexParts)
+    {
         var t =  CompileFromHexToBigInteger(TIndexes , hexParts);
         var s1 = CompileFromHexToBigInteger(S1Indexes, hexParts); 
         var s2 = CompileFromHexToBigInteger(S2Indexes, hexParts);
@@ -80,7 +85,6 @@ public static class FastModuloP256
         var r = t + (s1 + s2 << 1) + s3 + s4 + d1 + d2 + d3 + d4;
 
         while (r >= P256) r -= P256;
-
         return r;
     }
 
