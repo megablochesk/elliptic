@@ -58,7 +58,7 @@ public class MathUtilitiesTests
         // Arrange
         BigInteger input = 27;
 
-        var expected = new List<int> { -1, 0, -1, 0, 0, 1 };
+        var expected = new List<BigInteger> { -1, 0, -1, 0, 0, 1 };
 
         // Act
         var result = MathUtilities.ComputeNAF(input);
@@ -73,7 +73,7 @@ public class MathUtilitiesTests
         // Arrange
         BigInteger input = 75;
 
-        var expected = new List<int> { 5, 0, 0, 0, -5 };
+        var expected = new List<BigInteger> { 5, 0, 0, 0, -5 };
 
         // Act
         var result = MathUtilities.GenerateWidthWNAF(input);

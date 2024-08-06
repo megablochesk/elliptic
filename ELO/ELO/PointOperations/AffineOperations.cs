@@ -58,7 +58,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
         if (k < 0) throw new ArgumentException( ExceptionMessages.ValueCanNotBeNegative);
         point.EnsureOnCurve();
 
-        if (k == BigInteger.Zero) return AffinePoint.AtInfinity;
+        if (k == 0) return AffinePoint.AtInfinity;
         
 
         var result = algorithmType switch
@@ -78,7 +78,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
     {
         AffinePoint result = AffinePoint.AtInfinity;
 
-        for (int i = MathUtilities.GetHighestBit(k); i >= 0; i--)
+        for (BigInteger i = MathUtilities.GetHighestBit(k); i >= 0; i--)
         {
             result = DoublePoint(result);
 
@@ -96,7 +96,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
         var r0 = AffinePoint.AtInfinity;
         var r1 = point;
 
-        for (int i = MathUtilities.GetHighestBit(k); i >= 0; i--)
+        for (BigInteger i = MathUtilities.GetHighestBit(k); i >= 0; i--)
         {
             if (MathUtilities.IsBitSet(k, i))
             {
@@ -143,7 +143,7 @@ public class AffineOperations(AlgorithmType algorithmType) : IPointOperations
 
             if (i != 0)
             {
-                result = AddPoints(result, savedPoints[i]);
+                result = AddPoints(result, savedPoints[(int)i]);
             }
         }
 

@@ -11,7 +11,7 @@ public class JacobianOperationTests
     private static readonly JacobianPoint PointOnCurve = new(
         X: BigInteger.Parse("48439561293906451759052585252797914202762949526041747995844080717082404635286"),
         Y: BigInteger.Parse("36134250956749795798585127919587881956611106672985015071877198253568414405109"),
-        Z: BigInteger.One);
+        Z: 1);
 
     [Test]
     public void DoublePoint_UsingGeneratorPoint_ShouldReturnDoubledJacobianPoint()

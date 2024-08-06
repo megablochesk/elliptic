@@ -1,6 +1,6 @@
 ﻿namespace ELO.Points;
 
-public record AffinePoint(BigInteger X, BigInteger Y) : Point
+public class AffinePoint(BigInteger X, BigInteger Y) : Point
 {
     public BigInteger X { get; } = X;
     public BigInteger Y { get; } = Y;
@@ -16,7 +16,7 @@ public record AffinePoint(BigInteger X, BigInteger Y) : Point
 
     public AffinePoint Negated => new(X, -Y % Curve.P);
 
-    public JacobianPoint ToJacobian() => new(X, Y, Z: BigInteger.One);
+    public JacobianPoint ToJacobian() => new(X, Y, Z: 1);
 
     public static AffinePoint AtInfinity => new(X: 0, Y: 0);
 

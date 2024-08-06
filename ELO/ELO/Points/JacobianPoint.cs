@@ -1,6 +1,6 @@
 ﻿namespace ELO.Points;
 
-public record JacobianPoint(BigInteger X, BigInteger Y, BigInteger Z) : Point
+public class JacobianPoint(BigInteger X, BigInteger Y, BigInteger Z) : Point
 {
     public BigInteger X { get; } = X;
     public BigInteger Y { get; } = Y;
@@ -34,5 +34,5 @@ public record JacobianPoint(BigInteger X, BigInteger Y, BigInteger Z) : Point
     }
 
     public static JacobianPoint AtInfinity 
-        => new(X: BigInteger.One, Y: BigInteger.One, Z: BigInteger.Zero);
+        => new(X: 1, Y: 1, Z: 0);
 }

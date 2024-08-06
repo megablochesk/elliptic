@@ -1,6 +1,6 @@
 ﻿namespace ELO.Points;
 
-public abstract record Point
+public abstract class Point
 {
     public abstract bool IsPointOnCurve();
 

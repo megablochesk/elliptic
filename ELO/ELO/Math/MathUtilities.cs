@@ -2,23 +2,27 @@
 
 public static class MathUtilities
 {
-    private static readonly int twoToW = 1 << Curve.WindowSize;
+    private static readonly int twoToW = (int)Math.Pow(2, Curve.WindowSize);
 
-    public static ushort GetHighestBit(BigInteger number) => (ushort)(number.GetBitLength() - 1);
+    public static BigInteger GetHighestBit(BigInteger number) => number.GetBitLength() - 1;
 
-    public static bool IsBitSet(BigInteger number, int bit) => (number & BigInteger.One << bit) != 0;
-
-    public static bool IsOdd(BigInteger number) => (number & BigInteger.One) == 1;
-
-    public static List<int> ComputeNAF(BigInteger number)
+    public static bool IsBitSet(BigInteger number, BigInteger bit)
     {
-        List<int> naf = [];
+        BigInteger mask = BigInteger.Pow(2, (int)bit);
+        return (number & mask) != BigInteger.Zero;
+    }
+
+    public static bool IsOdd(BigInteger number) => number % 2 != 0;
+
+    public static List<BigInteger> ComputeNAF(BigInteger number)
+    {
+        List<BigInteger> naf = [];
 
         while (number > 0)
         {
             if (IsOdd(number))
             {
-                var z = 2 - (int)(number % 4);
+                var z = 2 - (number % 4);
                 naf.Add(z);
                 number -= z;
             }
@@ -27,15 +31,15 @@ public static class MathUtilities
                 naf.Add(0);
             }
 
-            number >>= 1;
+            number /= 2;
         }
 
         return naf;
     }
 
-    public static List<int> GenerateWidthWNAF(BigInteger number)
+    public static List<BigInteger> GenerateWidthWNAF(BigInteger number)
     {
-        var result = new List<int>();
+        var result = new List<BigInteger>();
 
         while (number > 0)
         {
@@ -48,17 +52,17 @@ public static class MathUtilities
             }
             else result.Insert(0, 0);
 
-            number >>= 1;
+            number /= 2;
         }
 
         return result;
     }
 
-    private static int SignedModulo(BigInteger number)
+    private static BigInteger SignedModulo(BigInteger number)
     {
-        var twoToWMinusOne = twoToW >> 1;  // 2^(w-1)
+        var twoToWMinusOne = BigInteger.Pow(2, Curve.WindowSize - 1);  // 2^(w-1)
 
-        var modResult = (int)(number % twoToW);  // d mod 2^w
+        var modResult = (number % twoToW);  // d mod 2^w
 
         return modResult >= twoToWMinusOne ? modResult - twoToW : modResult;
     }
@@ -66,7 +70,7 @@ public static class MathUtilities
     public static BigInteger ModInverse(BigInteger number, BigInteger modulo)
     {
         if (modulo == 1)
-            return BigInteger.Zero;
+            return 0;
 
         if (BigInteger.GreatestCommonDivisor(number, modulo) != 1)
             throw new InvalidOperationException(ExceptionMessages.NoInverseModulo);

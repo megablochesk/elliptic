@@ -30,11 +30,8 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
         var c = (a - point1.X) % Curve.P;
         var d = (b - point1.Y) % Curve.P;
 
-        var c2 = BigInteger.Pow(c, 2) % Curve.P;
-        var c3 = BigInteger.Multiply(c2, c) % Curve.P;
-
-        var x3 = (d * d - (c3 + (point1.X * c2 << 1))) % Curve.P;
-        var y3 = (d * (point1.X * c2 - x3) - point1.Y * c3) % Curve.P;
+        var x3 = (d * d - ((BigInteger.Pow(c, 3) % Curve.P) + (point1.X * (BigInteger.Pow(c, 2) % Curve.P) << 1))) % Curve.P;
+        var y3 = (d * (point1.X * (BigInteger.Pow(c, 2) % Curve.P) - x3) - point1.Y * (BigInteger.Pow(c, 3) % Curve.P)) % Curve.P;
         var z3 = point1.Z * c % Curve.P;
 
         if (x3 < 0) x3 += Curve.P;
@@ -46,17 +43,14 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
 
     private static JacobianPoint AddJacobianPoints(JacobianPoint point1, JacobianPoint point2)
     {
-        BigInteger Z1Z1 = point1.Z * point1.Z % Curve.P;
-        BigInteger Z2Z2 = point2.Z * point2.Z % Curve.P;
-
-        BigInteger u1 = point1.X * Z2Z2 % Curve.P;
-        BigInteger u2 = point2.X * Z1Z1 % Curve.P;
+        BigInteger u1 = point1.X * (point2.Z * point2.Z % Curve.P) % Curve.P;
+        BigInteger u2 = point2.X * (point1.Z * point1.Z % Curve.P) % Curve.P;
 
         BigInteger Y1Z2 = point1.Y * point2.Z % Curve.P;
         BigInteger Y2Z1 = point2.Y * point1.Z % Curve.P;
 
-        BigInteger s1 = Y1Z2 * Z2Z2 % Curve.P;
-        BigInteger s2 = Y2Z1 * Z1Z1 % Curve.P;
+        BigInteger s1 = Y1Z2 * (point2.Z * point2.Z % Curve.P) % Curve.P;
+        BigInteger s2 = Y2Z1 * (point1.Z * point1.Z % Curve.P) % Curve.P;
 
         if (u1 == u2)
         {
@@ -74,7 +68,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
 
         BigInteger x3 = (r * r - j - 2 * v) % Curve.P;
         BigInteger y3 = (r * (v - x3) - 2 * s1 * j) % Curve.P;
-        BigInteger z3 = (BigInteger.ModPow(point1.Z + point2.Z,2, Curve.P) - Z1Z1 - Z2Z2) * h % Curve.P;
+        BigInteger z3 = (BigInteger.ModPow(point1.Z + point2.Z,2, Curve.P) - (point1.Z * point1.Z % Curve.P) - (point2.Z * point2.Z % Curve.P)) * h % Curve.P;
 
         if (x3 < 0) x3 += Curve.P;
         if (y3 < 0) y3 += Curve.P;
@@ -92,24 +86,21 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
 
     private static JacobianPoint DoubleJacobianPoint(JacobianPoint point)
     {
-        var a = (point.X << 2) * BigInteger.Pow(point.Y, 2) % Curve.P;
+        var a = (point.X  * 4) * BigInteger.Pow(point.Y, 2) % Curve.P;
         var b = (BigInteger.Pow(point.Y, 4) << 3) % Curve.P;
 
-
-        var z2 = BigInteger.Pow(point.Z, 2) % Curve.P;
-
-        var c = 3 * (point.X - z2) * (point.X + z2) % Curve.P;
+        var c = 3 * (point.X - (BigInteger.Pow(point.Z, 2) % Curve.P)) * (point.X + (BigInteger.Pow(point.Z, 2) % Curve.P)) % Curve.P;
         var d = ((-a << 1) + c * c) % Curve.P;    // equal to x3
 
         var y3 = (c * (a - d) - b) % Curve.P;
-        var z3 = ((point.Y * point.Z) << 1) % Curve.P;
+        var z3 = ((point.Y * point.Z)  * 2) % Curve.P;
 
         return new JacobianPoint(d, y3, z3);
     }
 
     public AffinePoint MultiplyPoint(BigInteger k, AffinePoint point)
     {
-        if (k == BigInteger.Zero) return AffinePoint.AtInfinity;
+        if (k == 0) return AffinePoint.AtInfinity;
 
         point.EnsureOnCurve();
 
@@ -130,7 +121,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
     {
         JacobianPoint result = JacobianPoint.AtInfinity;
 
-        for (int i = MathUtilities.GetHighestBit(k); i >= 0; i--)
+        for (BigInteger i = MathUtilities.GetHighestBit(k); i >= 0; i--)
         {
             result = DoublePoint(result);
 
@@ -148,7 +139,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
         var r0 = JacobianPoint.AtInfinity;
         var r1 = point.ToJacobian();
 
-        for (int i = MathUtilities.GetHighestBit(k); i >= 0; i--)
+        for (BigInteger i = MathUtilities.GetHighestBit(k); i >= 0; i--)
         {
             if (MathUtilities.IsBitSet(k, i))
             {
@@ -195,7 +186,7 @@ public class JacobianOperations(AlgorithmType algorithmType) : IPointOperations
 
             if (i != 0)
             {
-                result = AddPoints(result, savedPoints[i]);
+                result = AddPoints(result, savedPoints[(int)i]);
             }
         }
 

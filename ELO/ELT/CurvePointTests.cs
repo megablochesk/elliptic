@@ -49,7 +49,7 @@ public class CurvePointTests
     [Test]
     public void JacobianPointShouldBeOnCurve()
     {
-        JacobianPoint point = new(PointOnCurve.X, PointOnCurve.Y, Z: BigInteger.One);
+        JacobianPoint point = new(PointOnCurve.X, PointOnCurve.Y, Z: 1);
 
         Assert.IsTrue(point.IsPointOnCurve());
     }
@@ -57,7 +57,7 @@ public class CurvePointTests
     [Test]
     public void JacobianPointShouldNotBeOnCurve()
     {
-        JacobianPoint point = new(PointOffCurve.X, PointOffCurve.Y, BigInteger.One);
+        JacobianPoint point = new(PointOffCurve.X, PointOffCurve.Y, 1);
 
         Assert.IsFalse(point.IsPointOnCurve());
     }
@@ -73,7 +73,7 @@ public class CurvePointTests
     [Test]
     public void JacobianPointWithNonZeroCoordinates_ShouldNotBeAtInfinity()
     {
-        var point = new JacobianPoint(PointOnCurve.X, PointOnCurve.Y, BigInteger.One);
+        var point = new JacobianPoint(PointOnCurve.X, PointOnCurve.Y, 1);
 
         Assert.IsFalse(point.IsAtInfinity);
     }
