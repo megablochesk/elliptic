@@ -69,12 +69,19 @@ public static class MathUtilities
 
     public static BigInteger ModInverse(BigInteger number, BigInteger modulo)
     {
-        if (modulo == 1)
-            return 0;
+        BigInteger result = 1;
+        BigInteger exponent = modulo - 2;
+        BigInteger baseValue = number % modulo;
 
-        if (BigInteger.GreatestCommonDivisor(number, modulo) != 1)
-            throw new InvalidOperationException(ExceptionMessages.NoInverseModulo);
+        while (exponent > 0)
+        {
+            if ((exponent & 1) == 1)
+                result = (result * baseValue) % modulo;
 
-        return BigInteger.ModPow(number, modulo - 2, modulo);
+            baseValue = (baseValue * baseValue) % modulo;
+            exponent /= 2;  
+        }
+
+        return result;
     }
 }
